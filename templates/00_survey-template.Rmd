@@ -1,0 +1,30 @@
+---
+title: SURVEY_TITLE
+author: "Blueprint-ADE"
+date: TODAY
+header-includes:
+  - \newcommand{\Qline}[1]{\noindent\rule{#1}{0.6pt}}
+  - \usepackage{pifont}
+  - \renewcommand{\familydefault}{\sfdefault}
+  - \usepackage[utf8]{inputenc}
+  - \usepackage[default,osfigures,scale=0.95]{opensans} 
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage[linewidth=3pt,middlelinecolor= grey,middlelinewidth=0.4pt,roundcorner=1pt,topline = false,rightline = false,bottomline = false,rightmargin=0pt,skipabove=0pt,skipbelow=0pt,leftmargin=-1cm,innerleftmargin=1cm,innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt]{mdframed}
+
+output: 
+  pdf_document:
+    number_sections: true
+---
