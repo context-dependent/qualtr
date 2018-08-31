@@ -1,3 +1,12 @@
+#' Get survey document as list
+#'
+#' @param survey_id
+#'
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_survey <- function(survey_id) {
 
   if(!is.character(survey_id)) {
@@ -6,7 +15,7 @@ get_survey <- function(survey_id) {
       Sys.getenv(
         "QUALTR_LAST_SURVEYS"
       ) %>%
-      str_split("::")
+      stringr::str_split("::")
     )
     survey_id <- ids[[1]][survey_id]
 
@@ -25,6 +34,16 @@ get_survey <- function(survey_id) {
 }
 
 
+#' Convert survey list object to markdown and compile as pdf
+#'
+#' @param srv
+#' @param file_name
+#' @param browse
+#'
+#' @return
+#' @export
+#'
+#' @examples
 print_survey <- function(srv, file_name, browse = FALSE) {
 
 
@@ -32,7 +51,7 @@ print_survey <- function(srv, file_name, browse = FALSE) {
 
   qs <- srv$result$questions %>%
 
-    map(qp_print_question)
+    purrr::map(qp_print_question)
 
   if(browse) browser()
   bs <- srv$result$blocks %>%
@@ -44,7 +63,7 @@ print_survey <- function(srv, file_name, browse = FALSE) {
     bs
   ) %>%
 
-    map_chr(
+    purrr::map_chr(
     ~ stringi::stri_enc_toutf8(.x)
     )
 
@@ -72,7 +91,7 @@ qp_set_blocks <- function(bs, qs) {
 
   bs %>%
 
-    map(
+    purrr::map(
       ~qp_set_block(.x, qs)
     )
 }
@@ -88,9 +107,9 @@ qp_set_block <- function(b, qs) {
   d <- b$description
 
   qs <- b$elements %>%
-    map("questionId") %>%
+    purrr::map("questionId") %>%
     unlist() %>%
-    map(~qs[[.x]])
+    purrr::map(~qs[[.x]])
 
   c(
     paste0("\\section{", d, "}"),
@@ -157,9 +176,9 @@ qp_mc_single <- function(q, browse = FALSE) {
   cb <- qp_cb(q, center = FALSE)
   choice <-
     q$choices %>%
-      map_chr("choiceText") %>%
-      map_chr(strip_html) %>%
-      map_chr(
+      purrr::map_chr("choiceText") %>%
+      purrr::map_chr(strip_html) %>%
+      purrr::map_chr(
       ~ paste0(
           "\\item[", cb, "] ",
           .x,
@@ -192,10 +211,10 @@ strip_html <- function(x) {
   }
 
   x %>%
-    map_chr(
-    ~ str_remove_all(.x, "<.+?>") %>%
-        str_replace_all("\\n", " ") %>%
-        str_replace_all("[\\`’]", "\\'") %>%
+    purrr::map_chr(
+    ~ stringr::str_remove_all(.x, "<.+?>") %>%
+        stringr::str_replace_all("\\n", " ") %>%
+        stringr::str_replace_all("[\\`’]", "\\'") %>%
         trimws()
     )
 
@@ -212,11 +231,11 @@ qp_likert <- function(q) {
 
   ## Get subquestions
 
-  qsub <- q$subQuestions %>% map_chr("choiceText") %>% strip_html()
+  qsub <- q$subQuestions %>% purrr::map_chr("choiceText") %>% strip_html()
 
   ## Get choices
 
-  choice <- q$choices %>% map_chr("choiceText") %>% strip_html()
+  choice <- q$choices %>% purrr::map_chr("choiceText") %>% strip_html()
 
   ## Generate checkboxes
 
@@ -299,8 +318,8 @@ qp_head <- function(srv) {
   tmp <- read_lines(
     "templates/00_survey-template.Rmd"
   ) %>%
-    str_replace("SURVEY_TITLE", title) %>%
-    str_replace("TODAY", as.character(Sys.Date()))
+    stringr::str_replace("SURVEY_TITLE", title) %>%
+    stringr::str_replace("TODAY", as.character(Sys.Date()))
 
   tmp
 
@@ -316,9 +335,9 @@ qp_form <- function(q) {
 
   choice <-
     q$choices %>%
-    map_chr("choiceText") %>%
+    purrr::map_chr("choiceText") %>%
     strip_html() %>%
-    map_chr(
+    purrr::map_chr(
       ~ paste0(
         "\\item[", cb, "] ",
         .x,
