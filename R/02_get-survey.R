@@ -9,17 +9,7 @@
 #' @examples
 get_survey <- function(survey_id) {
 
-  if(!is.character(survey_id)) {
-
-    ids <- unlist(
-      Sys.getenv(
-        "QUALTR_LAST_SURVEYS"
-      ) %>%
-      stringr::str_split("::")
-    )
-    survey_id <- ids[[1]][survey_id]
-
-  }
+  survey_id <- env_id(survey_id)
 
   survey_url <- paste0(
     Sys.getenv("QUALTRICS_ROOT_URL"),
@@ -45,7 +35,6 @@ get_survey <- function(survey_id) {
 #'
 #' @examples
 print_survey <- function(srv, file_name, browse = FALSE) {
-
 
   rmd_head <- qp_head(srv)
 
@@ -112,12 +101,18 @@ qp_set_block <- function(b, qs) {
     purrr::map(~qs[[.x]])
 
   c(
-    paste0("\\section{", d, "}"),
-    "\n\n\\begin{mdframed}\n",
+    paste0("\\section{\\textcolor{red}{", d, "}}"),
+    "\\begin{mdframed}\n",
     qs,
      "\n\n\\end{mdframed}\n\n",
     "\\clearpage"
   )
+
+}
+
+qp_header <- function(q) {
+
+
 
 }
 
@@ -150,15 +145,38 @@ qp_title_text <- function(q) {
 
   # Title
 
-  title <- q$questionName
-
+  qn <- q$questionName
   # Question text
 
   text <- q$questionText %>% strip_html()
 
+  if(!qn %>% str_detect("head|desc|img")) {
+    title <- "\\question"
+  } else if(qn %>% str_detect("head")) {
+    return(
+      c(
+        paste0("\\subsection{", text, "}")
+      )
+    )
+  } else if(qn %>% str_detect("desc")) {
+    return(
+      text
+    )
+  } else {
+
+    url <- str_extract(q$questionText, "(?<=img src\\=\")[^\\s\"]+")
+    return(
+      paste0("\\href{", url, "}")
+    )
+  }
+
   res <- c(
-    paste0("\\subsection{", snakecase::to_upper_camel_case(title), "}"),
-    "",
+    title,
+    paste0(
+      "{\\color{red}\\begin{verbatim}",
+      qn,
+      "\\end{verbatim}}"
+    ),
     text,
     ""
   )
@@ -214,7 +232,7 @@ strip_html <- function(x) {
     purrr::map_chr(
     ~ stringr::str_remove_all(.x, "<.+?>") %>%
         stringr::str_replace_all("\\n", " ") %>%
-        stringr::str_replace_all("[\\`’]", "\\'") %>%
+        stringr::str_replace_all("\\`|’|\\&#39;", "\\'") %>%
         trimws()
     )
 

@@ -12,70 +12,90 @@
 #' @export
 #'
 #' @examples
-q_tab <- function(dat, ..., title = NULL, browse = FALSE) {
+qt_raw <- function(dat,
+                   .vars,
+                   .grp = groups(dat),
+                   title = NULL,
+                   browse = FALSE) {
 
   if(browse) browser()
-  x <- quos(...)
-  g <- dat %>% select(!!!x)
-  qs <- g %>%  map_chr(~attr(.x, "label"))
-  stem <- ifelse(ncol(g) == 1, qs, q_stem(qs))
 
-  if(nchar(stem) > 0) {
-    g <- g %>%
-      map_dfc(
-      ~ `attr<-`(
-          .x, "label",
-          attr(.x, "label") %>%
-          str_replace(stem %>% esc, "")
-        )
-      )
+  if(is.null(.grp)) {
+
+    grp <- quo(var)
+
   } else {
-    stem = title
+
+    grp <- c(quo(var), .grp)
+
   }
 
-  nms <- g %>% map(~attr(.x, "label"))
+  g <- dat %>% select(!!!.vars, -matches("TEXT"))
+  qs <- g %>%
+    ungroup() %>%
+    select(!!!.vars) %>%
+    map(
+    ~ attr(.x, "label") %>%
+      stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
+      qx_embed_field()
+    ) %>%
+      str_split("(?<=[^\\s])-(?=[^\\s])", simplify = TRUE)
 
-  colnames(g) <- nms
+  if(ncol(qs) == 1) {
+
+    stem <- title %||% "Item text"
+
+  } else {
+
+    stem <- unique(qs[, 1])
+
+  }
+
+  qs <- qs[, 2]
+  names(qs) <- g %>%
+    ungroup() %>%
+    select(!!!.vars) %>%
+    names()
+
+
 
   levs <- g %>% map(levels)
 
   levs <- levs[[which.max(levs %>% map(length))]]
 
   g <- g %>%
+    gather(var, val, !!!.vars) %>%
     filter(!is.na(val)) %>%
-    mutate(p = n / sum(n),
-           N = sum(n)) %>%
-    ungroup() %>%
-    mutate(val = fct_relevel(val, !!!levs, after = Inf)) %>%
-    arrange(var, val)
-
-  cnms <- c(esc(stem), "val", "n", "p", "N", "c", "cr", "pn")
+    count(var, val) %>%
+    group_by(!!!grp)
 
   g <- g %>%
-    group_by(var) %>%
+    mutate(
+      p = n / sum(n),
+      N = sum(n)
+    ) %>%
+    ungroup() %>%
+    mutate(
+      var_lab = recode(var, !!!qs),
+      val = fct_relevel(val, !!!levs, after = Inf)
+    ) %>%
+    select(!!!grp, var_lab, everything()) %>%
+    rename(!!sym(stem) := var_lab) %>%
+    arrange(var, val)
+
+  g <- g %>%
+    group_by(!!!grp) %>%
     mutate(
       c = cumsum(p),
       cr = rev(cumsum(rev(p))),
       pn = str_c(round(p, 2) * 100, "% (", n, ")")
-    ) %>%
-    set_names(cnms)
+    )
 
   g %>% ungroup()
 
 }
 
-softly <- function(..., vars = current_vars()) {
-
-  vars <- quos(...)
-  names <- vars %>% map(quo_name)
-  mstr <- str_c("^", names, "$") %>% paste0(collapse = "|")
-
-  matches(mstr)
-
-}
-
-
-#' format latab for printing
+#' format qt_raw for printing
 #'
 #' @param lt
 #'
@@ -83,26 +103,10 @@ softly <- function(..., vars = current_vars()) {
 #' @export
 #'
 #' @examples
-laprint <- function(lt) {
+qt_print <- function(qt) {
 
-  lt %>% select(1, N, matches("Gender"),  val, pn) %>%
+  qt %>% select(-n, -p, -n, -c, -cr) %>%
     spread(val, pn) %>%
-    mutate_at(vars(-1:-2), funs(ifelse(is.na(.), " - ", .)))
+    mutate_if(is.character, funs(ifelse(is.na(.), " - ", .)))
 
-}
-
-q_stem <- function(words) {
-  #extract substrings from length 1 to length of shortest word
-  subs <- sapply(seq_len(min(nchar(words))),
-                 function(x, words) substring(words, 1, x),
-                 words=words)
-  #max length for which substrings are equal
-  neqal <- max(cumsum(apply(subs, 2, function(x) length(unique(x)) == 1L)))
-  #return substring
-  substring(words[1], 1, neqal)
-}
-
-esc <- function(string) {
-  str_remove_all(string, "([^[:alnum:]\\s])") %>%
-    str_c("...")
 }

@@ -61,6 +61,24 @@ q_bars <- function(dat, ..., ylim = NULL) {
 
 
 
+pbar <- function(dat, x, title_wrap = 40, col_wrap = 12) {
+
+  x <- enquo(x)
+
+  p <- dat %>% count(!!x) %>%
+    filter(!is.na(!!x)) %>%
+    ggplot(aes(!!x, n)) +
+    geom_col(alpha = 0.9) +
+    geom_text(aes(label = n,
+                  vjust = ifelse(n > (0.7 * max(n)), "top", "bottom"),
+                  colour = n > (0.7 * max(n))),
+              size = 10) +
+    scale_colour_manual(values = c("grey35", "white"), guide = FALSE) +
+    theme_minimal(base_family = "Roboto Condensed", base_size = 14)
+
+  p
+
+}
 harmonize_y <- function(plot_list) {
   y_max <- plot_list %>%
     map(~ggplot_build(.x)$data[[1]]$y) %>%

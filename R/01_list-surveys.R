@@ -20,7 +20,7 @@ list_surveys <- function(search = "") {
 
     httr::content()
 
-  res <- req$result$elements %>% bind_rows
+  res <- req$result$elements %>% dplyr::bind_rows()
 
 
   if (search == "") {
@@ -45,7 +45,7 @@ list_surveys <- function(search = "") {
 
   }
 
-  Sys.setenv("QUALTR_LAST_SURVEYS" = paste0(res$id, collapse = ", "))
+  Sys.setenv("QUALTR_LAST_SURVEYS" = paste0(res$id, collapse = ","))
 
   res
 

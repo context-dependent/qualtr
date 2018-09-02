@@ -22,14 +22,19 @@ header-includes:
   - \usepackage{threeparttablex}
   - \usepackage[normalem]{ulem}
   - \usepackage{makecell}
-  - \usepackage[linewidth=3pt,middlelinecolor= grey,middlelinewidth=0.4pt,roundcorner=1pt,topline = false,rightline = false,bottomline = false,rightmargin=0pt,skipabove=0pt,skipbelow=0pt,leftmargin=-1cm,innerleftmargin=1cm,innerrightmargin=0pt,innertopmargin=0pt,innerbottommargin=0pt]{mdframed}
+  - \usepackage{lipsum}  
+  - \usepackage[linewidth=3pt,middlelinecolor= grey,middlelinewidth=0.4pt,roundcorner=1pt,topline = false,rightline = false,bottomline = false,rightmargin=2pt,skipabove=0pt,skipbelow=0pt,leftmargin=-1cm,innerleftmargin=1cm,innerrightmargin=2pt,innertopmargin=0pt,innerbottommargin=0pt]{mdframed}
 
-output: pdf_document
+output: 
+  pdf_document:
+    number_sections: false
 ---
-
 \newcounter{qc}
 \setcounter{qc}{0}
 \newcommand{\question}{%
   \addtocounter{qc}{1}%
   \paragraph{Q \arabic{qc}}%
 }
+
+
+

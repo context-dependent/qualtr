@@ -10,7 +10,12 @@
 #' @export
 #'
 #' @examples
-get_responses <- function(id, folder = "Z:/R/temp", fname = "qxre.zip", format = "spss", labs = TRUE, ...) {
+get_responses <- function(id,
+                          folder = tempdir(),
+                          fname = "qxre.zip",
+                          format = "spss",
+                          labs = TRUE,
+                          ...) {
 
   if(Sys.getenv("QUALTRICS_API_KEY") == "") {
 
@@ -64,7 +69,7 @@ get_responses <- function(id, folder = "Z:/R/temp", fname = "qxre.zip", format =
   if(req$status_code == 404) {
 
     cat("Qualtrics can't find that ID right now, trying again...\n")
-    get_survey(id, folder = folder, fname = fname, format = format, labs = labs, ...)
+    get_responses(id, folder = folder, fname = fname, format = format, labs = labs, ...)
 
   }
 
@@ -83,24 +88,77 @@ get_responses <- function(id, folder = "Z:/R/temp", fname = "qxre.zip", format =
 
   res <-
 
-    select(
+    dplyr::select(
       haven::read_spss(archive),
-      -matches("logo|header")
+      -dplyr::matches("logo|header")
     )
 
   cat("file extracted", "\n")
 
-  list.files(folder, full.names = TRUE) %>%
-    map(file.remove)
+  unlink(folder)
+
+  # list.files(folder, full.names = TRUE) %>%
+  #   purrr::map(file.remove)
 
   cat("cleanup complete", "\n")
 
-  list(
-    fct = haven::as_factor(res),
-    num = haven::zap_labels(res),
-    lab = purrr::map(res, ~ attr(.x, "label"))
+  res <-
+
+    res %>%
+      map_dfc(
+      ~ `attr<-`(.x, "label",
+          attr(.x, "label") %>%
+          stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
+          qx_embed_field()
+        )
+      )
+
+}
+
+
+qx_mat_labs <- function(q) {
+
+  sub_names <-
+
+    q$subQuestions %>%
+      map_chr(
+      ~ paste0(q$questionName, "_", .x$recode)
+      )
+
+  res <- list(
+    name = q$questionName,
+    text = q$questionText %>%
+      qx_embed_field() %>%
+      strip_html(),
+    subs = q$subQuestions %>%
+      purrr::map(
+      ~ stringr::str_c(
+          q$questionText %>%
+            qx_embed_field() %>%
+            strip_html(),
+          "::",
+          strip_html(.x$description)
+        )
+      ) %>%
+      purrr::set_names(sub_names)
   )
+
+}
+
+
+qx_embed_field <- function(qt) {
+
+  # Replace qualtrics formatted embedded fields
+  # with more legible alternatives
+
+  qt %>%
+
+    str_replace_all(
+      "\\$\\{e://Field/([^\\s]+)?\\}",
+      "[RESPONSIVE VALUE: \\1]"
+    )
 
 
 }
+
 

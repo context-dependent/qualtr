@@ -6,9 +6,9 @@ env_id <- function(id) {
       Sys.getenv(
         "QUALTR_LAST_SURVEYS"
       ) %>%
-        stringr::str_split(", ")
+        stringr::str_split(",")
     )
-    res <- ids[[1]][id]
+    res <- ids[id]
 
   } else {
 
