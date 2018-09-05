@@ -40,7 +40,7 @@ print_survey <- function(srv, file_name, browse = FALSE) {
 
   qs <- srv$result$questions %>%
 
-    purrr::map(qp_print_question)
+    purrr::imap(~qp_print_question(.x, .y))
 
   if(browse) browser()
   bs <- srv$result$blocks %>%
@@ -65,7 +65,7 @@ print_survey <- function(srv, file_name, browse = FALSE) {
       ".Rmd"
     )
 
-  write_lines(
+  readr::write_lines(
     res,
     path
   )
@@ -101,7 +101,7 @@ qp_set_block <- function(b, qs) {
     purrr::map(~qs[[.x]])
 
   c(
-    paste0("\\section{\\textcolor{red}{", d, "}}"),
+    paste0("\\section{\\textcolor{red}{", strip_html(d), "}}"),
     "\\begin{mdframed}\n",
     qs,
      "\n\n\\end{mdframed}\n\n",
@@ -116,9 +116,13 @@ qp_header <- function(q) {
 
 }
 
-qp_print_question <- function(q) {
+qp_print_question <- function(q, id) {
 
   type <- q$questionType$type
+  nm <- q$questionName
+
+  cat(stringr::str_c(c("ID: ", "Name: ", "Type: "), c(id, nm, type)), sep = "\n")
+  cat("\n")
 
   print_fun <-
 
@@ -128,15 +132,192 @@ qp_print_question <- function(q) {
       "DB" = qp_title_text,
       "Matrix" = qp_likert,
       "MC" = qp_mc_single,
-      "TE" = qp_text_entry
+      "TE" = qp_text_entry,
+      "Timing" = qp_title_text,
+      "SBS" = qp_sbs,
+      "Slider" = qp_slider
 
     )
 
   c(
-    "\\begin{samepage}",
+    "\\begin{minipage}{\\textwidth}",
     print_fun(q),
-    "\\end{samepage}"
+    "\\end{minipage}"
   )
+
+}
+
+qp_slider <- function(q) {
+
+  return("[SLIDER]")
+
+}
+
+qp_sbs <- function(q, browse = FALSE) {
+
+  if(browse) browser()
+
+  top <- qp_title_text(q)
+
+  # the first column should be the subquestions
+
+  qsub <- q$subQuestions %>% purrr::map_chr("choiceText") %>% strip_html()
+
+  # each column is a question, which should be represented by at least one
+  # column in the final table
+
+  cols <- q$columns
+
+  t00 <- cols %>%
+
+    map(~qp_sbs_col_print(.x, qsub)) %>%
+    reduce(left_join)
+
+  align <- c("l", rep("c", ncol(res) - 1))
+
+  t01 <- t00 %>%
+    knitr::kable(
+      format = "latex",
+      booktabs = TRUE,
+      align = align,
+      escape = FALSE
+    )
+
+  choice_width <- paste0(
+    34 / (ncol(t00) - 1),
+    "em"
+  )
+
+  t02 <- t01 %>%
+    kableExtra::column_spec(1, width = "5em") %>%
+    kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
+    kableExtra::kable_styling(latex_options = "striped")
+
+  out <- c(
+    "\n\n\n",
+    top,
+    t02
+  )
+
+  ## Return formatted question
+
+  out
+
+}
+
+
+qp_sbs_col_print <- function(col, qsub) {
+
+  sel   <- col$questionType$selector
+  sub <- col$questionType$subSelector
+  col$questionText <- strip_html(col$questionText)
+  col$choices <- col$choices %>% map(~map(.x, strip_html))
+
+  print_fun <-
+
+    ifelse(
+      sub == "DL",
+      qp_sbs_col_drop,
+    ifelse(
+      sel == "Likert",
+      qp_sbs_col_likert,
+    ifelse(
+      sel == "TE",
+      qp_sbs_col_txt,
+      NA
+    )))
+
+  print_fun(col, qsub)
+
+}
+
+
+qp_sbs_col_drop <- function(col, qsub) {
+
+  choices <-
+    col$choices %>%
+      map("description") %>%
+      map(~stringr::str_trunc(.x, 8)) %>%
+      paste0(collapse=",")
+
+
+  dl <- stringr::str_c(
+    "\\ChoiceMenu[print,combo,default=-,name=",
+    snakecase::to_lower_camel_case(
+      col$questionText
+    ),
+    1:length(qsub),
+    "]{}{",
+    choices,
+    "}"
+  )
+
+  res <-
+
+    tibble(
+      item = qsub,
+      !!sym(col$questionText) := dl
+    )
+
+  res
+
+}
+
+qp_sbs_col_txt <- function(col, qsub) {
+
+  box <- paste0(
+    qp_cb(col),
+    "\\Qline{3cm}"
+  )
+
+  res <-
+
+    tibble(
+      item = qsub,
+      !!sym(col$questionText) := box
+    )
+
+  res
+}
+
+qp_sbs_col_likert <- function(col, qsub) {
+
+  choices <- col$choices %>% map_chr("description") %>% strip_html()
+
+  cb <- qp_cb(col)
+
+
+  ## Generate checkboxes
+
+  check <-
+
+    tibble::as_tibble(
+      matrix(
+        cb,
+        nrow = length(qsub),
+        ncol = length(choices)
+      )
+    )
+
+
+  align = c("l", rep("c", length(choices)))
+
+  choice_width <- paste0(
+    21 / length(choices),
+    "em"
+  )
+
+
+  ## Construct table
+
+  res <-
+
+    check %>%
+    purrr::set_names(choices) %>%
+    dplyr::mutate(item = qsub) %>%
+    dplyr::select(item, dplyr::everything())
+
+  res
 
 }
 
@@ -144,27 +325,26 @@ qp_print_question <- function(q) {
 qp_title_text <- function(q) {
 
   # Title
-
   qn <- q$questionName
-  # Question text
 
+  # Question text
   text <- q$questionText %>% strip_html()
 
-  if(!qn %>% str_detect("head|desc|img")) {
+  if(!qn %>% stringr::str_detect("head|desc|img")) {
     title <- "\\question"
-  } else if(qn %>% str_detect("head")) {
+  } else if(qn %>% stringr::str_detect("head")) {
     return(
       c(
         paste0("\\subsection{", text, "}")
       )
     )
-  } else if(qn %>% str_detect("desc")) {
+  } else if(qn %>% stringr::str_detect("desc")) {
     return(
       text
     )
   } else {
 
-    url <- str_extract(q$questionText, "(?<=img src\\=\")[^\\s\"]+")
+    url <- stringr::str_extract(q$questionText, "(?<=img src\\=\")[^\\s\"]+")
     return(
       paste0("\\href{", url, "}")
     )
@@ -231,19 +411,25 @@ strip_html <- function(x) {
   x %>%
     purrr::map_chr(
     ~ stringr::str_remove_all(.x, "<.+?>") %>%
-        stringr::str_replace_all("\\n", " ") %>%
-        stringr::str_replace_all("\\`|’|\\&#39;", "\\'") %>%
+        qx_embed_field() %>%
+        stringr::str_replace_all("\\n|\\&nbsp;", " ") %>%
+        stringr::str_replace_all("\\`|’|\\&#39;", "\'") %>%
+        stringr::str_replace_all("\\&quot;", "\"") %>%
+        stringr::str_replace_all("\\$", "\\\\$") %>%
+        stringr::str_replace_all("\\&eacute;", "e") %>%
+        stringr::str_replace_all("\\&", "\\\\&") %>%
         trimws()
     )
 
 }
 
-qp_likert <- function(q) {
 
+qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
 
-  top <- qp_title_text(q)
+  if(browse) browser()
 
-  cb <- qp_cb(q, center = TRUE)
+  if(top) top <- qp_title_text(q)
+
 
   # Knitr table of choices by subquestions
 
@@ -255,15 +441,29 @@ qp_likert <- function(q) {
 
   choice <- q$choices %>% purrr::map_chr("choiceText") %>% strip_html()
 
+  ncol <- length(choice)
+
+  if(q$questionType$subSelector == "DL") {
+
+    cb <- qp_drop(q)
+
+    ncol <- 1
+    choice <- q$questionText
+
+  } else {
+
+    cb <- qp_cb(q, center = TRUE)
+
+  }
   ## Generate checkboxes
 
   check <-
 
-    as_tibble(
+    tibble::as_tibble(
       matrix(
         cb,
         nrow = length(qsub),
-        ncol = length(choice)
+        ncol = ncol
       )
     )
 
@@ -281,15 +481,19 @@ qp_likert <- function(q) {
   res <-
 
     check %>%
-      set_names(choice) %>%
-      mutate(item = qsub) %>%
-      select(item, everything()) %>%
+      purrr::set_names(choice) %>%
+      dplyr::mutate(item = qsub) %>%
+      dplyr::select(item, dplyr::everything()) %>%
     knitr::kable(
       format = "latex",
       booktabs = TRUE,
       align = align,
       escape = FALSE
-    ) %>%
+    )
+
+  if(!print) return(res)
+
+  res <- res %>%
     kableExtra::column_spec(1, width = "20em") %>%
     kableExtra::column_spec(1:length(choice) + 1, width = choice_width) %>%
     kableExtra::kable_styling(latex_options = "striped")
@@ -333,7 +537,7 @@ qp_head <- function(srv) {
   title = srv$result$name
 
 
-  tmp <- read_lines(
+  tmp <- readr::read_lines(
     "templates/00_survey-template.Rmd"
   ) %>%
     stringr::str_replace("SURVEY_TITLE", title) %>%
@@ -388,7 +592,7 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
 
   }
 
-  ding <- case_when(
+  ding <- dplyr::case_when(
 
     s %in% c(
       "SingleAnswer",
@@ -402,7 +606,8 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
     ~ "\\ding{113}",
 
     s %in% c(
-      "FORM"
+      "FORM",
+      "TE"
     )
     ~ "\\ding{47}",
 

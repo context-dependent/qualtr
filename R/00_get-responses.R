@@ -153,9 +153,13 @@ qx_embed_field <- function(qt) {
 
   qt %>%
 
-    str_replace_all(
+    stringr::str_replace_all(
       "\\$\\{e://Field/([^\\s]+)?\\}",
-      "[RESPONSIVE VALUE: \\1]"
+      "[EMBEDDED VALUE: \\1]"
+    ) %>%
+    stringr::str_replace_all(
+      "\\$\\{q://([^\\s]+)?/([^\\s]+)?\\}",
+      "[RESPONSE VALUE: \\1]"
     )
 
 

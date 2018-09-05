@@ -5,6 +5,8 @@ date: TODAY
 header-includes:
   - \newcommand{\Qline}[1]{\noindent\rule{#1}{0.6pt}}
   - \usepackage{pifont}
+  - \usepackage{hyperref}
+  - \def\DefaultWidthofChoiceMenu{1cm} 
   - \renewcommand{\familydefault}{\sfdefault}
   - \usepackage[utf8]{inputenc}
   - \usepackage[default,osfigures,scale=0.95]{opensans} 
@@ -31,10 +33,36 @@ output:
 ---
 \newcounter{qc}
 \setcounter{qc}{0}
-\newcommand{\question}{%
+\newcommand{%
+  \question}{%
   \addtocounter{qc}{1}%
   \paragraph{Q \arabic{qc}}%
 }
+\question
+{\color{red}\begin{verbatim}HHChildRoster\end{verbatim}}
+Please fill in the table below for all children who normally live in your household (if living with you at least half of the time). For each child, please enter their month and year of birth and their relationship to you.
 
+\begin{table}[H]
+\centering\rowcolors{2}{gray!6}{white}
 
-
+\begin{tabular}{>{\raggedright\arraybackslash}p{5em}>{\centering\arraybackslash}p{5.66666666666667em}>{\raggedright\arraybackslash}p{5.66666666666667em}>{\centering\arraybackslash}p{5.66666666666667em}>{\raggedright\arraybackslash}p{5.66666666666667em}>{\centering\arraybackslash}p{5.66666666666667em}>{\raggedright\arraybackslash}p{5.66666666666667em}}
+\hiderowcolors
+\toprule
+item & Year of birth & Month of birth & Relationship to you & Specify "Other" relationship here & Don't know & Prefer not to answer\\
+\midrule
+\showrowcolors
+Child 1 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth1]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth1]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou1]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 2 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth2]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth2]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou2]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 3 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth3]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth3]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou3]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 4 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth4]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth4]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou4]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 5 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth5]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth5]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou5]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+\addlinespace
+Child 6 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth6]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth6]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou6]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 7 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth7]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth7]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou7]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 8 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth8]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth8]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou8]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 9 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth9]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth9]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou9]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+Child 10 & \ChoiceMenu[print,combo,default=-,name=yearOfBirth10]{}{1999,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018} & \ChoiceMenu[print,combo,default=-,name=monthOfBirth10]{}{Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec} & \ChoiceMenu[print,combo,default=-,name=relationshipToYou10]{}{Son o...,Son o...,Son o...,Your ...,Your ...,Your ...,Foste...,Roomm...,Other...} & \ding{47}\Qline{3cm} & \ding{109} & \ding{109}\\
+\bottomrule
+\end{tabular}
+\rowcolors{2}{white}{white}
+\end{table}

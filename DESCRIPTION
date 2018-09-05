@@ -12,7 +12,8 @@ LazyData: true
 Imports: 
     dplyr,
     magrittr,
-    tibble
+    tibble,
+    readr
 Suggests: 
     httr,
     snakecase,
