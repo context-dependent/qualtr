@@ -34,17 +34,17 @@ get_survey <- function(survey_id) {
 #' @export
 #'
 #' @examples
-print_survey <- function(srv, file_name, browse = FALSE) {
+print_survey <- function(srv, file_name, print_internal = TRUE, browse = FALSE) {
 
   rmd_head <- qp_head(srv)
 
   qs <- srv$result$questions %>%
 
-    purrr::imap(~qp_print_question(.x, .y))
+    purrr::imap(~qp_print_question(.x, .y, print_internal = print_internal))
 
   if(browse) browser()
   bs <- srv$result$blocks %>%
-    qp_set_blocks(qs) %>%
+    qp_set_blocks(qs, print_internal = print_internal) %>%
     unlist()
 
   res <- c(
@@ -76,16 +76,16 @@ print_survey <- function(srv, file_name, browse = FALSE) {
 
 }
 
-qp_set_blocks <- function(bs, qs) {
+qp_set_blocks <- function(bs, qs, print_internal = TRUE) {
 
   bs %>%
 
     purrr::map(
-      ~qp_set_block(.x, qs)
+      ~qp_set_block(.x, qs, print_internal = TRUE)
     )
 }
 
-qp_set_block <- function(b, qs) {
+qp_set_block <- function(b, qs, print_internal = TRUE) {
 
   if(!is.list(b)) {
 
@@ -100,11 +100,20 @@ qp_set_block <- function(b, qs) {
     unlist() %>%
     purrr::map(~qs[[.x]])
 
+
   c(
-    paste0("\\section{\\textcolor{red}{", strip_html(d), "}}"),
+    ifelse(
+      print_internal,
+      paste0(
+        "\\section{\\textcolor{red}{",
+        strip_html(d),
+        "}}"
+      ),
+      NULL
+    ),
     "\\begin{mdframed}\n",
     qs,
-     "\n\n\\end{mdframed}\n\n",
+    "\n\n\\end{mdframed}\n\n",
     "\\clearpage"
   )
 
@@ -116,7 +125,7 @@ qp_header <- function(q) {
 
 }
 
-qp_print_question <- function(q, id) {
+qp_print_question <- function(q, id, print_internal = TRUE) {
 
   type <- q$questionType$type
   nm <- q$questionName
@@ -129,11 +138,11 @@ qp_print_question <- function(q, id) {
     switch(
       type,
 
-      "DB" = qp_title_text,
+      "DB" = function(q) {qp_title_text(q, print_internal = print_internal)},
       "Matrix" = qp_likert,
       "MC" = qp_mc_single,
       "TE" = qp_text_entry,
-      "Timing" = qp_title_text,
+      "Timing" = function(q) {qp_title_text(q, print_internal = print_internal)},
       "SBS" = qp_sbs,
       "Slider" = qp_slider
 
@@ -315,14 +324,14 @@ qp_sbs_col_likert <- function(col, qsub) {
     check %>%
     purrr::set_names(choices) %>%
     dplyr::mutate(item = qsub) %>%
-    dplyr::select(item, dplyr::everything())
+    dplyr::select(item, dplyr::eve3rything())
 
   res
 
 }
 
 
-qp_title_text <- function(q) {
+qp_title_text <- function(q, print_internal = TRUE) {
 
   # Title
   qn <- q$questionName
@@ -330,7 +339,7 @@ qp_title_text <- function(q) {
   # Question text
   text <- q$questionText %>% strip_html()
 
-  if(!qn %>% stringr::str_detect("head|desc|img")) {
+  if(!(qn %>% stringr::str_detect("head|desc|img"))) {
     title <- "\\question"
   } else if(qn %>% stringr::str_detect("head")) {
     return(
@@ -342,6 +351,10 @@ qp_title_text <- function(q) {
     return(
       text
     )
+  } else if(qn %>% stringr::str_detect("^cal")) {
+
+    return(paste0("\\question", textm, "\\tcal"))
+
   } else {
 
     url <- stringr::str_extract(q$questionText, "(?<=img src\\=\")[^\\s\"]+")
@@ -352,10 +365,14 @@ qp_title_text <- function(q) {
 
   res <- c(
     title,
-    paste0(
-      "{\\color{red}\\begin{verbatim}",
-      qn,
-      "\\end{verbatim}}"
+    ifelse(
+      print_internal,
+      paste0(
+        "{\\color{red}\\begin{verbatim}",
+        qn,
+        "\\end{verbatim}}"
+      ),
+      NULL
     ),
     text,
     ""
@@ -513,11 +530,15 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
 
 qp_text_entry <- function(q) {
 
-
   s <- q$questionType$selector
+  qn <- q$questionName
   print(s)
 
-  if(s == "FORM") {
+  if(qn %>% stringr::str_detect("^cal")) {
+
+    res <- qp_title_text(q)
+
+  } else if(s == "FORM") {
 
     res <- qp_form(q)
 
@@ -626,6 +647,17 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
 
   res
 
+}
+
+
+
+qp_import_display_logic <- function(qsf) {
+
+  srv <- jsonlite::read_json(qsf)
+
+  qs <-
+
+    srv[srv %>% purrr::map_lgl(~.x$
 
 
 }

@@ -4,8 +4,8 @@
 \alias{get_responses}
 \title{Get an export of responses from a survey}
 \usage{
-get_responses(id, folder = "Z:/R/temp", fname = "qxre.zip",
-  format = "spss", labs = TRUE, ...)
+get_responses(id, folder = tempdir(), fname = "qxre.zip", format = "spss",
+  labs = TRUE, ...)
 }
 \arguments{
 \item{...}{}

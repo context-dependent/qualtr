@@ -30,7 +30,8 @@ qt_raw <- function(dat,
 
   }
 
-  g <- dat %>% select(!!!.vars, -matches("TEXT"))
+  g <- dat %>%
+    select(!!!.vars, -matches("TEXT"))
   qs <- g %>%
     ungroup() %>%
     select(!!!.vars) %>%
