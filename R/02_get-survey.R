@@ -34,7 +34,7 @@ get_survey <- function(survey_id) {
 #' @export
 #'
 #' @examples
-print_survey <- function(srv, file_name, print_internal = TRUE, browse = FALSE) {
+print_survey <- function(srv, file_name, print_internal = FALSE, browse = FALSE) {
 
   rmd_head <- qp_head(srv)
 
@@ -43,13 +43,16 @@ print_survey <- function(srv, file_name, print_internal = TRUE, browse = FALSE) 
     purrr::imap(~qp_print_question(.x, .y, print_internal = print_internal))
 
   if(browse) browser()
-  bs <- srv$result$blocks %>%
+  bs <- srv$result$blocks
+
+  bs <- bs[bs %>% map_lgl(~ !stringr::str_detect(.x$description %||% "Trash", "Trash"))] %>%
     qp_set_blocks(qs, print_internal = print_internal) %>%
     unlist()
 
   res <- c(
     rmd_head,
-    bs
+    bs,
+    "\\end{document}"
   ) %>%
 
     purrr::map_chr(
@@ -62,7 +65,7 @@ print_survey <- function(srv, file_name, print_internal = TRUE, browse = FALSE) 
       "prints/",
       Sys.Date(), "-",
       file_name,
-      ".Rmd"
+      ".tex"
     )
 
   readr::write_lines(
@@ -70,9 +73,7 @@ print_survey <- function(srv, file_name, print_internal = TRUE, browse = FALSE) 
     path
   )
 
-  rmarkdown::render(path)
-
-  res
+  tinytex::pdflatex(path)
 
 }
 
@@ -105,15 +106,15 @@ qp_set_block <- function(b, qs, print_internal = TRUE) {
     ifelse(
       print_internal,
       paste0(
-        "\\section{\\textcolor{red}{",
+        "\\section{\\textcolor{white}{",
         strip_html(d),
         "}}"
       ),
       NULL
     ),
-    "\\begin{mdframed}\n",
+    # "\\begin{mdframed}\n",
     qs,
-    "\n\n\\end{mdframed}\n\n",
+    # "\\end{mdframed}\n\n",
     "\\clearpage"
   )
 
@@ -144,21 +145,35 @@ qp_print_question <- function(q, id, print_internal = TRUE) {
       "TE" = qp_text_entry,
       "Timing" = function(q) {qp_title_text(q, print_internal = print_internal)},
       "SBS" = qp_sbs,
-      "Slider" = qp_slider
+      "Slider" = qp_slider,
+      "HeatMap" = qp_heat_map
 
     )
 
   c(
-    "\\begin{minipage}{\\textwidth}",
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\begin{minipage}{\\textwidth}"),
     print_fun(q),
-    "\\end{minipage}"
+    "\\vspace{2 mm}",
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "\\end{qbox}", ""),
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\end{minipage}")
   )
 
 }
 
 qp_slider <- function(q) {
 
-  return("[SLIDER]")
+  top <- qp_title_text(q)
+
+  qp <- "\\tslide{0}{10}"
+
+
+  res <- c(
+    "\n\n\n",
+    top,
+    qp
+  )
+
+  res
 
 }
 
@@ -182,28 +197,29 @@ qp_sbs <- function(q, browse = FALSE) {
     map(~qp_sbs_col_print(.x, qsub)) %>%
     reduce(left_join)
 
-  align <- c("l", rep("c", ncol(res) - 1))
+  align <- c("l", rep("c", ncol(t00) - 1))
 
   t01 <- t00 %>%
     knitr::kable(
       format = "latex",
       booktabs = TRUE,
       align = align,
-      escape = FALSE
+      escape = FALSE,
+      linesep = ""
     )
 
   choice_width <- paste0(
-    34 / (ncol(t00) - 1),
+    31 / (ncol(t00) - 1),
     "em"
   )
 
   t02 <- t01 %>%
     kableExtra::column_spec(1, width = "5em") %>%
     kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
+    kableExtra::row_spec(0, background = "white") %>%
     kableExtra::kable_styling(latex_options = "striped")
 
   out <- c(
-    "\n\n\n",
     top,
     t02
   )
@@ -211,6 +227,14 @@ qp_sbs <- function(q, browse = FALSE) {
   ## Return formatted question
 
   out
+
+}
+
+qp_heat_map <- function(q) {
+
+  res <- "[HEATMAP]"
+
+  res
 
 }
 
@@ -324,14 +348,38 @@ qp_sbs_col_likert <- function(col, qsub) {
     check %>%
     purrr::set_names(choices) %>%
     dplyr::mutate(item = qsub) %>%
-    dplyr::select(item, dplyr::eve3rything())
+    dplyr::select(item, dplyr::everything())
 
   res
 
 }
 
+qp_drop <- function(q, print_internal = TRUE, browse = FALSE) {
+
+  if(browse) browser()
+
+  choices <-
+    q$choices %>%
+    purrr::map_chr("choiceText") %>%
+    paste0(collapse=",")
+
+  dl <- paste0(
+    "\\ChoiceMenu[print,combo,default=-,name=",
+    snakecase::to_lower_camel_case(
+      q$questionName
+    ),
+    "]{}{",
+    choices,
+    "}"
+  )
+
+  dl
+
+}
+
 
 qp_title_text <- function(q, print_internal = TRUE) {
+
 
   # Title
   qn <- q$questionName
@@ -339,8 +387,8 @@ qp_title_text <- function(q, print_internal = TRUE) {
   # Question text
   text <- q$questionText %>% strip_html()
 
-  if(!(qn %>% stringr::str_detect("head|desc|img"))) {
-    title <- "\\question"
+  if(!(qn %>% stringr::str_detect("head|desc|img|^cal"))) {
+    title <- "\\begin{qbox}{\\question}"
   } else if(qn %>% stringr::str_detect("head")) {
     return(
       c(
@@ -353,7 +401,7 @@ qp_title_text <- function(q, print_internal = TRUE) {
     )
   } else if(qn %>% stringr::str_detect("^cal")) {
 
-    return(paste0("\\question", textm, "\\tcal"))
+    return(paste0("\\begin{qbox}{\\question}", text, "\\tcal"))
 
   } else {
 
@@ -363,57 +411,80 @@ qp_title_text <- function(q, print_internal = TRUE) {
     )
   }
 
+  dlbox <- ""
+
+  if(!is.null(q$displayLogic) & length(q$displayLogic > 0)) {
+    dlbox <- c(
+      "\\begin{dlbox}",
+      q$displayLogic,
+      "\\end{dlbox}"
+    )
+  }
+
   res <- c(
     title,
-    ifelse(
-      print_internal,
-      paste0(
-        "{\\color{red}\\begin{verbatim}",
-        qn,
-        "\\end{verbatim}}"
-      ),
-      NULL
-    ),
+    dlbox,
+    # ifelse(
+    #   print_internal,
+    #   paste0(
+    #     "{\\color{white}\\begin{verbatim}",
+    #     qn,
+    #     "\\end{verbatim}}"
+    #   ),
+    #   NULL
+    # ),
     text,
-    ""
+    "\\vspace{2 mm}"
   )
 
   res
 
 }
 
-qp_mc_single <- function(q, browse = FALSE) {
+qp_mc_single <- function(q, browse =FALSE) {
 
 
   if(browse) browser()
 
   top <- qp_title_text(q)
   cb <- qp_cb(q, center = FALSE)
-  choice <-
-    q$choices %>%
+
+  if(q$questionType$selector == "DL") {
+
+    qp <- qp_drop(q)
+
+  } else {
+
+    ends <- rep("\\\\", length(q$choices) -1) %>% c("")
+
+    choices <-
+      q$choices %>%
       purrr::map_chr("choiceText") %>%
       purrr::map_chr(strip_html) %>%
       purrr::map_chr(
-      ~ paste0(
+        ~ paste0(
           "\\item[", cb, "] ",
-          .x,
-          "\\\\",
-          collapse = ""
+          .x
         )
-      )
+      ) %>%
+      stringr::str_c(ends)
+    ## Construct table
 
-  ## Construct table
+    qp <- c(
 
+      "\\begin{itemize}",
+      choices,
+      "\\end{itemize}"
 
-  out <- c(
+    )
+
+  }
+
+  res <- c(
     "\n\n\n",
     top,
-    "\\begin{itemize}",
-    choice,
-    "\\end{itemize}"
+    qp
   )
-
-  out
 
 }
 
@@ -427,15 +498,18 @@ strip_html <- function(x) {
 
   x %>%
     purrr::map_chr(
-    ~ stringr::str_remove_all(.x, "<.+?>") %>%
-        qx_embed_field() %>%
-        stringr::str_replace_all("\\n|\\&nbsp;", " ") %>%
-        stringr::str_replace_all("\\`|’|\\&#39;", "\'") %>%
-        stringr::str_replace_all("\\&quot;", "\"") %>%
-        stringr::str_replace_all("\\$", "\\\\$") %>%
-        stringr::str_replace_all("\\&eacute;", "e") %>%
-        stringr::str_replace_all("\\&", "\\\\&") %>%
-        trimws()
+    ~ xml2::read_html(paste0("<div>",  .x, "</div>"), encoding = "UTF-8") %>%
+      rvest::html_text() %>%
+      qx_embed_field() %>%
+      stringr::str_replace_all("\\n|\\&nbsp;", " ") %>%
+      stringr::str_replace_all("\\`|’|\\&#39;", "\'") %>%
+      stringr::str_replace_all("\\&quot;", "\"") %>%
+      stringr::str_replace_all("\\$", "") %>%
+      stringr::str_replace_all("\\&nbsp;", "") %>%
+      stringr::str_replace_all("\\&eacute;", "e") %>%
+      stringr::str_replace_all("\\&", "and") %>%
+      stringr::str_replace_all("(\\d)%", "\\1\\\\%") %>%
+      trimws()
     )
 
 }
@@ -460,7 +534,8 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
 
   ncol <- length(choice)
 
-  if(q$questionType$subSelector == "DL") {
+  if(!is.null(q$questionType$subSelector) &
+     q$questionType$subSelector == "DL") {
 
     cb <- qp_drop(q)
 
@@ -505,19 +580,20 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
       format = "latex",
       booktabs = TRUE,
       align = align,
-      escape = FALSE
+      escape = FALSE,
+      linesep = ""
     )
 
   if(!print) return(res)
 
   res <- res %>%
-    kableExtra::column_spec(1, width = "20em") %>%
+    kableExtra::column_spec(1, width = "14em") %>%
     kableExtra::column_spec(1:length(choice) + 1, width = choice_width) %>%
+    kableExtra::row_spec(0, background = "white") %>%
     kableExtra::kable_styling(latex_options = "striped")
 
 
   out <- c(
-    "\n\n\n",
     top,
     res
   )
@@ -559,9 +635,9 @@ qp_head <- function(srv) {
 
 
   tmp <- readr::read_lines(
-    "templates/00_survey-template.Rmd"
+    "templates/02_st_tex-cleanup.tex"
   ) %>%
-    stringr::str_replace("SURVEY_TITLE", title) %>%
+    stringr::str_replace("SURVEYTITLE", title) %>%
     stringr::str_replace("TODAY", as.character(Sys.Date()))
 
   tmp
@@ -617,7 +693,8 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
 
     s %in% c(
       "SingleAnswer",
-      "SAVR"
+      "SAVR",
+      "Likert"
     )
     ~ "\\ding{109}",
 
@@ -651,13 +728,3 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
 
 
 
-qp_import_display_logic <- function(qsf) {
-
-  srv <- jsonlite::read_json(qsf)
-
-  qs <-
-
-    srv[srv %>% purrr::map_lgl(~.x$
-
-
-}

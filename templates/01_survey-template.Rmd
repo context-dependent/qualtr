@@ -1,0 +1,28 @@
+---
+title: SURVEY_TITLE
+author: "Blueprint-ADE"
+date: TODAY
+header-includes:
+  - \usepackage{lipsum}   % To generate test text 
+  - \usepackage[framemethod=TikZ]{mdframed}
+  - \usepackage{tikz}
+  - \usetikzlibrary{decorations.pathmorphing,calc}
+  - \pgfmathsetseed{1} % To have predictable results
+  - \pgfdeclarelayer{background}
+  - \pgfsetlayers{background,main}
+  - \usepackage{amsthm}
+  - \usepackage{environ}
+
+output: pdf_document
+---
+
+\NewEnviron{mybox}[1][]{%
+ \noindent
+ \begin{tikzpicture}
+   \node[minimum width=\linewidth-0.4pt,draw,text width=\linewidth-12pt,,font=\ttfamily](a){\BODY};
+   \node[fill=white,yshift=0.5ex,font=\ttfamily] at (a.north) {#1};
+ \end{tikzpicture}}
+
+\begin{mybox}{Question 1}
+this is how we do it
+\end{mybox}
