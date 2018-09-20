@@ -3,5 +3,6 @@
 .RData
 .Ruserdata
 .token.rds
+.conf.rds
 prints/
 qsf/
