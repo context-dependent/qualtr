@@ -8,9 +8,12 @@ read_qsf <- function(path, browse = FALSE) {
     purrr::map_lgl(qsf$SurveyElements, ~.x$Element == "SQ")
   ]
 
+  srv <- get_survey(qsf$SurveyEntry$SurveyID)
+
+  bs <- srv$result$blocks
+
   qsf_body <- function(q) {
 
-    if(browse) browser()
     res <- list(
       id           = q$PrimaryAttribute,
       questionName = q$Payload$DataExportTag,
@@ -100,29 +103,11 @@ read_qsf <- function(path, browse = FALSE) {
 
   qs_01 <- qs_01[qs_01 %>% purrr::map_lgl(~.x$questionType$selector != "Profile")]
 
-  bs_raw <- q
-
-  bs_raw <- qsf$SurveyElements[
-    purrr::map_lgl(qsf$SurveyElements, ~.x$Element == "BL")
-  ]
-
-  bs_00 <- bs_raw[[1]]$Payload %>%
-    map(
-    ~ list(
-        description = .x$Description,
-        elements    = .x$BlockElements %>%
-          map(
-          ~ list(
-              questionId = .x$QuestionID
-            )
-          )
-      )
-    )
 
   srv <- list(
     result = list(
       questions = qs_01,
-      blocks = bs_00,
+      blocks = bs,
       name = qsf$SurveyEntry$SurveyName
     )
   )
