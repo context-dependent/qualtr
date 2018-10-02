@@ -4,7 +4,7 @@
 \alias{print_survey}
 \title{Convert survey list object to markdown and compile as pdf}
 \usage{
-print_survey(srv, file_name, browse = FALSE)
+print_survey(srv, file_path, print_internal = FALSE, browse = FALSE)
 }
 \arguments{
 \item{browse}{}

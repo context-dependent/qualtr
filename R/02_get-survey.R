@@ -34,7 +34,7 @@ get_survey <- function(survey_id) {
 #' @export
 #'
 #' @examples
-print_survey <- function(srv, file_name, print_internal = FALSE, browse = FALSE) {
+print_survey <- function(srv, file_path, print_internal = FALSE, browse = FALSE) {
 
   rmd_head <- qp_head(srv)
 
@@ -59,18 +59,9 @@ print_survey <- function(srv, file_name, print_internal = FALSE, browse = FALSE)
     ~ stringi::stri_enc_toutf8(.x)
     )
 
-  path <-
-
-    paste0(
-      "prints/",
-      Sys.Date(), "-",
-      file_name,
-      ".tex"
-    )
-
   readr::write_lines(
     res,
-    path
+    file_path
   )
 
   tinytex::pdflatex(path)
@@ -453,6 +444,10 @@ qp_mc_single <- function(q, browse =FALSE) {
 
     qp <- qp_drop(q)
 
+  } else if(identical(q$choices, list())) {
+
+    qp <- "[CARRY FORWARD SELECTED CHOICES]"
+
   } else {
 
     ends <- rep("\\\\", length(q$choices) -1) %>% c("")
@@ -694,6 +689,7 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
     s %in% c(
       "SingleAnswer",
       "SAVR",
+      "SAHR",
       "Likert"
     )
     ~ "\\ding{109}",

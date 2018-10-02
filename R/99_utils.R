@@ -75,6 +75,16 @@ decrypt_conf <- function(path = ".conf.rds") {
 
 }
 
+#' Encrypt qualtrics configuration details in project root
+#'
+#' @param api_token
+#' @param base_url
+#' @param key
+#'
+#' @return
+#' @export
+#'
+#' @examples
 encrypt_conf <- function(api_token, base_url, key) {
 
   conf <- list(

@@ -1,3 +1,12 @@
+#' Import qsf file for printing
+#'
+#' @param path
+#' @param browse
+#'
+#' @return
+#' @export
+#'
+#' @examples
 read_qsf <- function(path, browse = FALSE) {
 
   if(browse) browser()
