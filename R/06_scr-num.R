@@ -131,20 +131,20 @@ scr_num <- function(dat, .vars, .rev = NULL, scale = "agree", fct = FALSE) {
 
   dat <-
     dat %>%
-      mutate_at(
+      dplyr::mutate_at(
         .vars,
-        funs(
+        dplyr::funs(
           . %>%
             trimws() %>%
-            map_dbl(~scales[[scale]][.x]))
+            purrr::map_dbl(~scales[[scale]][.x]))
         )
 
   if(!is.null(.rev)) {
 
     dat <- dat %>%
-      mutate_at(
+      dplyr::mutate_at(
         .rev,
-        funs((. - cludge) * -1 + cludge)
+        dplyr::funs((. - cludge) * -1 + cludge)
       )
 
   }
@@ -174,20 +174,20 @@ score_scale <- function(srv, var_name,
 
     srv %>%
 
-    select(!!!.vars) %>%
+    dplyr::select(!!!.vars) %>%
     scr_num(.vars, .rev, scale = scale) %>%
-    mutate(i = row_number()) %>%
-    group_by(i) %>%
-    nest() %>%
-    mutate(
-      items = data %>% map_dbl(~sum(!is.na(.x))),
-      total = data %>% map_dbl(~sum(.x, na.rm = TRUE)),
+    dplyr::mutate(i = row_number()) %>%
+    dplyr::group_by(i) %>%
+    tidyr::nest() %>%
+    dplyr::mutate(
+      items = data %>% purrr::map_dbl(~sum(!is.na(.x))),
+      total = data %>% purrr::map_dbl(~sum(.x, na.rm = TRUE)),
       score = total / items
     ) %>%
-    unnest() %>%
-    ungroup() %>%
-    select(items, total, score) %>%
-    rename_all(funs(str_c(var_name, "_", .)))
+    tidyr::unnest() %>%
+    dplyr::ungroup() %>%
+    dplyr::select(items, total, score) %>%
+    dplyr::rename_all(funs(str_c(var_name, "_", .)))
 
   coded_scale
 }

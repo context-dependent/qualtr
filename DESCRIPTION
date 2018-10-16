@@ -15,7 +15,8 @@ Imports:
     tibble,
     readr,
     getPass,
-    sodium
+    sodium,
+    purrr
 Suggests: 
     httr,
     snakecase,
