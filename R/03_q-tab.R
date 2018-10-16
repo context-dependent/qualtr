@@ -45,14 +45,15 @@ qt_raw <- function(dat,
   if(ncol(qs) == 1) {
 
     stem <- title %||% "Item text"
+    qs <- qs[,1]
 
   } else {
 
     stem <- unique(qs[, 1])
+    qs <- qs[, 2]
 
   }
 
-  qs <- qs[, 2]
   names(qs) <- g %>%
     ungroup() %>%
     select(!!!.vars) %>%
