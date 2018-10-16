@@ -64,7 +64,7 @@ print_survey <- function(srv, file_path, print_internal = FALSE, browse = FALSE)
     file_path
   )
 
-  tinytex::pdflatex(path)
+  tinytex::pdflatex(file_path)
 
 }
 
