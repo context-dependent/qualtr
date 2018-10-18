@@ -221,6 +221,12 @@ qp_sbs <- function(q, browse = FALSE) {
 
 }
 
+qp_rank_order <- function(q) {
+
+
+
+}
+
 qp_heat_map <- function(q) {
 
   res <- "[HEATMAP]"
