@@ -223,6 +223,9 @@ qp_sbs <- function(q, browse = FALSE) {
 
 qp_rank_order <- function(q) {
 
+  res <- "[RANK ORDER]"
+
+  res
 
 
 }
@@ -635,9 +638,7 @@ qp_head <- function(srv) {
   title = srv$result$name
 
 
-  tmp <- readr::read_lines(
-    "templates/02_st_tex-cleanup.tex"
-  ) %>%
+  tmp <- template %>%
     stringr::str_replace("SURVEYTITLE", title) %>%
     stringr::str_replace("TODAY", as.character(Sys.Date()))
 
