@@ -34,7 +34,11 @@ get_survey <- function(survey_id) {
 #' @export
 #'
 #' @examples
-print_survey <- function(srv, file_path, print_internal = FALSE, browse = FALSE) {
+print_survey <- function(srv,
+                         file_path,
+                         keep_tex = TRUE,
+                         print_internal = FALSE,
+                         browse = FALSE) {
 
   rmd_head <- qp_head(srv)
 
@@ -66,6 +70,15 @@ print_survey <- function(srv, file_path, print_internal = FALSE, browse = FALSE)
 
   tinytex::pdflatex(file_path)
 
+  if(!keep_tex) {
+
+    file.remove(file_path)
+    cat(
+      "Latex file compiled and deleted",
+      "To keep Latex file set keep_tex = TRUE"
+    )
+
+  }
 }
 
 qp_set_blocks <- function(bs, qs, print_internal = TRUE) {
@@ -288,7 +301,7 @@ qp_sbs_col_drop <- function(col, qsub) {
   res <-
 
     tibble(
-      item = qsub,
+      Item = qsub,
       !!sym(col$questionText) := dl
     )
 
@@ -306,7 +319,7 @@ qp_sbs_col_txt <- function(col, qsub) {
   res <-
 
     tibble(
-      item = qsub,
+      Item = qsub,
       !!sym(col$questionText) := box
     )
 
@@ -347,8 +360,8 @@ qp_sbs_col_likert <- function(col, qsub) {
 
     check %>%
     purrr::set_names(choices) %>%
-    dplyr::mutate(item = qsub) %>%
-    dplyr::select(item, dplyr::everything())
+    dplyr::mutate(Item = qsub) %>%
+    dplyr::select(Item, dplyr::everything())
 
   res
 
@@ -578,8 +591,8 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
 
     check %>%
       purrr::set_names(choice) %>%
-      dplyr::mutate(item = qsub) %>%
-      dplyr::select(item, dplyr::everything()) %>%
+      dplyr::mutate(Item = qsub) %>%
+      dplyr::select(Item, dplyr::everything()) %>%
     knitr::kable(
       format = "latex",
       booktabs = TRUE,

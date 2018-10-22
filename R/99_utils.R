@@ -51,8 +51,6 @@ register_options <- function(conf = decrypt_conf()) {
   Sys.setenv(QUALTRICS_API_KEY = conf$api_token)
 }
 
-"ca1.qualtrics.com"
-
 
 #' Decrypt token with password
 #'
@@ -85,7 +83,9 @@ decrypt_conf <- function(path = ".conf.rds") {
 #' @export
 #'
 #' @examples
-encrypt_conf <- function(api_token, base_url, key) {
+encrypt_conf <- function(api_token,
+                         base_url = "ca1.qualtrics.com",
+                         key) {
 
   conf <- list(
     api_token = api_token,
