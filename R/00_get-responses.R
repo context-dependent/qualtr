@@ -105,7 +105,7 @@ get_responses <- function(id,
   res <-
 
     res %>%
-      map_dfc(
+      purrr::map_dfc(
       ~ `attr<-`(.x, "label",
           attr(.x, "label") %>%
           stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
@@ -121,7 +121,7 @@ qx_mat_labs <- function(q) {
   sub_names <-
 
     q$subQuestions %>%
-      map_chr(
+      purrr::map_chr(
       ~ paste0(q$questionName, "_", .x$recode)
       )
 

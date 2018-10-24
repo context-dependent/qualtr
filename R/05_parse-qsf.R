@@ -41,6 +41,7 @@ read_qsf <- function(path, browse = FALSE) {
         ),
       displayLogic = q$Payload$DisplayLogic[[1]] %>%
         map("Description") %>%
+        map(qp_html_to_tex) %>%
         map(strip_html) %>%
         map(strip_html) %>%
         unlist() %>%

@@ -35,7 +35,7 @@ qt_raw <- function(dat,
   qs <- g %>%
     ungroup() %>%
     select(!!!.vars) %>%
-    map(
+    purrr::map(
     ~ attr(.x, "label") %>%
       stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
       qx_embed_field()
@@ -61,9 +61,9 @@ qt_raw <- function(dat,
 
 
 
-  levs <- g %>% map(levels)
+  levs <- g %>% purrr::map(levels)
 
-  levs <- levs[[which.max(levs %>% map(length))]]
+  levs <- levs[[which.max(levs %>% purrr::map(length))]]
 
   g <- g %>%
     gather(var, val, !!!.vars) %>%

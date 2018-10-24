@@ -49,7 +49,7 @@ print_survey <- function(srv,
   if(browse) browser()
   bs <- srv$result$blocks
 
-  bs <- bs[bs %>% map_lgl(~ !stringr::str_detect(.x$description %||% "Trash", "Trash"))] %>%
+  bs <- bs[bs %>% purrr::map_lgl(~ !stringr::str_detect(.x$description %||% "Trash", "Trash"))] %>%
     qp_set_blocks(qs, print_internal = print_internal) %>%
     unlist()
 
@@ -198,7 +198,7 @@ qp_sbs <- function(q, browse = FALSE) {
 
   t00 <- cols %>%
 
-    map(~qp_sbs_col_print(.x, qsub)) %>%
+    purrr::map(~qp_sbs_col_print(.x, qsub)) %>%
     reduce(left_join)
 
   align <- c("l", rep("c", ncol(t00) - 1))
@@ -257,7 +257,7 @@ qp_sbs_col_print <- function(col, qsub) {
   sel   <- col$questionType$selector
   sub <- col$questionType$subSelector
   col$questionText <- strip_html(col$questionText)
-  col$choices <- col$choices %>% map(~map(.x, strip_html))
+  col$choices <- col$choices %>% purrr::map(~purrr::map(.x, strip_html))
 
   print_fun <-
 
@@ -282,8 +282,8 @@ qp_sbs_col_drop <- function(col, qsub) {
 
   choices <-
     col$choices %>%
-      map("description") %>%
-      map(~stringr::str_trunc(.x, 8)) %>%
+      purrr::map("description") %>%
+      purrr::map(~stringr::str_trunc(.x, 8)) %>%
       paste0(collapse=",")
 
 
@@ -328,7 +328,7 @@ qp_sbs_col_txt <- function(col, qsub) {
 
 qp_sbs_col_likert <- function(col, qsub) {
 
-  choices <- col$choices %>% map_chr("description") %>% strip_html()
+  choices <- col$choices %>% purrr::map_chr("description") %>% strip_html()
 
   cb <- qp_cb(col)
 
@@ -398,7 +398,7 @@ qp_title_text <- function(q, print_internal = TRUE) {
   qn <- q$questionName
 
   # Question text
-  text <- q$questionText %>% strip_html()
+  text <- q$questionText %>% qp_html_to_tex() %>% strip_html()
 
   if(!(qn %>% stringr::str_detect("head|desc|img|^cal"))) {
     title <- "\\begin{qbox}{\\question}"
@@ -637,8 +637,12 @@ qp_text_entry <- function(q) {
 
   } else {
 
-    res <- c(qp_title_text(q), "\\Qline{8cm}\n\n\n")
-
+    res <- c(
+      qp_title_text(q),
+      "\\begin{itemize}",
+      paste0("\\item[\\ding{47}]\\Qline{8cm}\n\n\n"),
+      "\\end{itemize}"
+    )
   }
 
   res
