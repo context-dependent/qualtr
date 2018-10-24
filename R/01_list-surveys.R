@@ -3,7 +3,7 @@
 #'
 #' @return
 #' @export
-#' @import sodium qualtRics tibble dplyr httr
+#' @import sodium tibble dplyr httr
 #'
 #' @examples
 list_surveys <- function(search = "") {

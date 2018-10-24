@@ -4,7 +4,7 @@
 \alias{encrypt_conf}
 \title{Encrypt qualtrics configuration details in project root}
 \usage{
-encrypt_conf(api_token, base_url, key)
+encrypt_conf(api_token, base_url = "ca1.qualtrics.com", key)
 }
 \arguments{
 \item{key}{}
