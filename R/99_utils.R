@@ -134,6 +134,14 @@ create_payload <- function(id, format = "csv", labs = FALSE, ...) {
 }
 
 
+#' Simple scan for html formatting tags -> latex
+#'
+#' @param x
+#'
+#' @return
+#' @export
+#'
+#' @examples
 qp_html_to_tex <- function(x) {
 
   x %>%
