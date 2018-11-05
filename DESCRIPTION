@@ -16,12 +16,13 @@ Imports:
     readr,
     getPass,
     sodium,
-    purrr
+    purrr,
+    kableExtra,
+    rmarkdown
 Suggests: 
     httr,
     snakecase,
     knitr,
-    kableExtra,
     stringr,
     rlang
 Roxygen: list(markdown = TRUE)
