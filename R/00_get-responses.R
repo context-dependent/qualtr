@@ -145,6 +145,146 @@ qx_mat_labs <- function(q) {
 
 }
 
+#' Get responses using current API version
+#'
+#' @param id Survey id as string or index from most recent list_surveys table
+#' @param as_factor
+#' @param clean_names
+#' @param ...
+#' @param browse
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse = FALSE) {
+
+  dots <- rlang::list2(...)
+
+  moja <- function(id) {
+
+    if(Sys.getenv("QUALTRICS_API_KEY") == "") {
+
+      register_options()
+
+    }
+
+    id <- env_id(id)
+
+    pl <- create_payload_v2(
+      format = "spss",
+      labs = TRUE
+      #,...
+    )
+
+    root_url <- paste0(
+      Sys.getenv("QUALTRICS_ROOT_URL"),
+      "/API/v3/surveys/",
+      id,
+      "/export-responses"
+    )
+
+
+    post_content <-httr::VERB("POST",
+                              url = root_url,
+                              httr::add_headers(headers()),
+                              body = pl) %>%
+      httr::content()
+
+
+    check_url <- paste0(root_url, "/", post_content$result$progressId)
+
+    check_request <- httr::VERB(
+      "GET",
+      url = check_url,
+      httr::add_headers(headers())
+    ) %>%
+      httr::content()
+
+
+    progress <- 0
+    cat("progress: \n")
+    while(progress < 100) {
+
+      check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
+        httr::content()
+      p <- floor(check_request$result$percentComplete)
+
+      if(p > progress) {
+
+        cat(paste0(rep(".", p - progress), collapse = ""))
+        progress <- p
+
+      }
+
+      file_url <- paste0(root_url, "/", check_request$result$fileId, "/file")
+
+    }
+
+    if(browse) browser()
+    req <- httr::GET(file_url, httr::add_headers(headers()))
+
+    cat("\n\nget status: ", req$status_code, "\n")
+
+    if(req$status_code == 404) {
+      cat("Qualtrics can't find that ID right now, trying again...\n")
+      moja(id)
+    }
+
+    con = paste0(folder, "/", fname)
+
+
+
+    writeBin(req$content, con = con)
+
+    cat("zip file saved to", con, "\n")
+
+    archive <- unzip(con, exdir = folder)
+
+    cat("extracted to", archive, "\n")
+
+
+    res <-
+
+      dplyr::select(
+        haven::read_spss(archive),
+        -dplyr::matches("logo|header")
+      )
+
+    cat("file extracted", "\n")
+
+    unlink(folder)
+
+    # list.files(folder, full.names = TRUE) %>%
+    #   purrr::map(file.remove)
+
+    cat("cleanup complete", "\n")
+
+    res <-
+
+      res %>%
+      purrr::map_dfc(
+        ~ `attr<-`(.x, "label",
+                   attr(.x, "label") %>%
+                     stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
+                     qx_embed_field()
+        )
+      )
+
+    if(as_factor)   res <- haven::as_factor(res)
+    if(clean_names) res <- janitor::clean_names(res)
+
+    res
+  }
+
+  if(length(dots) > 1) {
+    res <- dots %>% purrr::map(moja)
+  } else {
+    res <- moja(dots)
+  }
+
+  res
+}
 
 qx_embed_field <- function(qt) {
 

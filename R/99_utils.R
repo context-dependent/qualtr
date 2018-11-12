@@ -133,6 +133,27 @@ create_payload <- function(id, format = "csv", labs = FALSE, ...) {
     stringr::str_replace("\"true\"", "true")
 }
 
+#' Create payload for updated api: no id in the payload
+#'
+#' @param format
+#' @param labs
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+create_payload_v2 <- function(format = "csv", labs = FALSE, ...) {
+
+
+  list(format = format,
+       useLabels = labs,
+       ...) %>%
+    jsonlite::toJSON(auto_unbox = TRUE) %>%
+    stringr::str_replace("\"false\"", "false") %>%
+    stringr::str_replace("\"true\"", "true")
+}
+
 
 #' Simple scan for html formatting tags -> latex
 #'
