@@ -164,7 +164,7 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
   moja <- function(id) {
 
     folder <- tempdir()
-    file <- tempfile(fileext = ".zip")
+    fname <- "qxre.zip"
     if(Sys.getenv("QUALTRICS_API_KEY") == "") {
 
       register_options()
