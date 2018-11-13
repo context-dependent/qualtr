@@ -10,12 +10,13 @@
 #' @export
 #'
 #' @examples
-get_responses <- function(id,
+get_responses <- function(...,
                           folder = tempdir(),
                           fname = "qxre.zip",
                           format = "spss",
                           labs = TRUE,
-                          ...) {
+                          as_factor = TRUE,
+                          clean_names = TRUE) {
 
   if(Sys.getenv("QUALTRICS_API_KEY") == "") {
 
@@ -23,95 +24,111 @@ get_responses <- function(id,
 
   }
 
-  id <- env_id(id)
+  dots <- rlang::list2(...)
 
-  pl <- create_payload(id = id, format = format, labs = labs, ...)
+  moja <- function(id) {
 
+    id <- env_id(id)
 
-  root_url <- paste0(Sys.getenv("QUALTRICS_ROOT_URL"), "/API/v3/responseexports")
-
-
-  post_content <-httr::VERB("POST",
-    url = root_url,
-    httr::add_headers(headers()),
-    body = pl) %>%
-    httr::content()
+    pl <- create_payload(id = id, format = format, labs = labs)
 
 
-  check_url <- paste0(root_url, "/", post_content$result$id)
+    root_url <- paste0(Sys.getenv("QUALTRICS_ROOT_URL"), "/API/v3/responseexports")
 
-  check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers()))
 
-  file_url <- paste0(check_url, "/file")
-
-  progress <- 0
-  cat("progress: \n")
-  while(progress < 100) {
-
-    check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
+    post_content <-httr::VERB("POST",
+                              url = root_url,
+                              httr::add_headers(headers()),
+                              body = pl) %>%
       httr::content()
-    p <- floor(check_request$result$percentComplete)
 
-    if(p > progress) {
 
-      cat(paste0(rep(".", p - progress), collapse = ""))
-      progress <- p
+    check_url <- paste0(root_url, "/", post_content$result$id)
+
+    check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers()))
+
+    file_url <- paste0(check_url, "/file")
+
+    progress <- 0
+    cat("progress: \n")
+    while(progress < 100) {
+
+      check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
+        httr::content()
+      p <- floor(check_request$result$percentComplete)
+
+      if(p > progress) {
+
+        cat(paste0(rep(".", p - progress), collapse = ""))
+        progress <- p
+
+      }
+
 
     }
 
+    req <- httr::GET(file_url, httr::add_headers(headers()))
 
-  }
+    cat("\n\nget status: ", req$status_code, "\n")
 
-  req <- httr::GET(file_url, httr::add_headers(headers()))
+    if(req$status_code == 404) {
 
-  cat("\n\nget status: ", req$status_code, "\n")
+      cat("Qualtrics can't find that ID right now, trying again...\n")
+      get_responses(id, folder = folder, fname = fname, format = format, labs = labs, ...)
 
-  if(req$status_code == 404) {
+    }
 
-    cat("Qualtrics can't find that ID right now, trying again...\n")
-    get_responses(id, folder = folder, fname = fname, format = format, labs = labs, ...)
-
-  }
-
-  con = paste0(folder, "/", fname)
+    con = paste0(folder, "/", fname)
 
 
 
-  writeBin(req$content, con = con)
+    writeBin(req$content, con = con)
 
-  cat("zip file saved to", con, "\n")
+    cat("zip file saved to", con, "\n")
 
-  archive <- unzip(con, exdir = folder)
+    archive <- unzip(con, exdir = folder)
 
-  cat("extracted to", archive, "\n")
+    cat("extracted to", archive, "\n")
 
 
-  res <-
+    res <-
 
-    dplyr::select(
-      haven::read_spss(archive),
-      -dplyr::matches("logo|header")
-    )
+      dplyr::select(
+        haven::read_spss(archive),
+        -dplyr::matches("logo|header")
+      )
 
-  cat("file extracted", "\n")
+    cat("file extracted", "\n")
 
-  unlink(folder)
+    unlink(folder)
 
-  # list.files(folder, full.names = TRUE) %>%
-  #   purrr::map(file.remove)
+    # list.files(folder, full.names = TRUE) %>%
+    #   purrr::map(file.remove)
 
-  cat("cleanup complete", "\n")
+    cat("cleanup complete", "\n")
 
-  res <-
+    res <-
 
-    res %>%
+      res %>%
       purrr::map_dfc(
-      ~ `attr<-`(.x, "label",
-          attr(.x, "label") %>%
-          stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
-          qx_embed_field()
+        ~ `attr<-`(.x, "label",
+                   attr(.x, "label") %>%
+                     stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
+                     qx_embed_field()
         )
       )
+
+    res
+  }
+
+  if(length(dots) > 1) {
+    res <- dots %>% purrr::map(moja)
+  } else {
+    res <- moja(dots[[1]])
+  }
+
+  res
+
 
 }
 
@@ -157,7 +174,7 @@ qx_mat_labs <- function(q) {
 #' @export
 #'
 #' @examples
-get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse = FALSE) {
+get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names = TRUE, browse = FALSE) {
 
   dots <- rlang::list2(...)
 
@@ -174,7 +191,7 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
     id <- env_id(id)
 
     pl <- create_payload_v2(
-      format = "spss",
+      format = format,
       labs = TRUE
       #,...
     )
@@ -187,10 +204,11 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
     )
 
 
-    post_content <-httr::VERB("POST",
-                              url = root_url,
-                              httr::add_headers(headers()),
-                              body = pl) %>%
+    post_content <-httr::VERB(
+      "POST",
+      url = root_url,
+      httr::add_headers(headers()),
+      body = pl) %>%
       httr::content()
 
 
@@ -203,10 +221,13 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
     ) %>%
       httr::content()
 
+    if(browse) browser()
 
     progress <- 0
     cat("progress: \n")
     while(progress < 100) {
+
+      Sys.sleep(1)
 
       check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
         httr::content()
@@ -223,7 +244,6 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
 
     }
 
-    if(browse) browser()
     req <- httr::GET(file_url, httr::add_headers(headers()))
 
     cat("\n\nget status: ", req$status_code, "\n")
@@ -245,11 +265,16 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
 
     cat("extracted to", archive, "\n")
 
+    import <- switch(
+      EXPR = format,
+      "spss" = haven::read_spss,
+      "csv"  = readr::read_csv
+    )
 
     res <-
 
       dplyr::select(
-        haven::read_spss(archive),
+        import(archive),
         -dplyr::matches("logo|header")
       )
 
@@ -266,10 +291,11 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
 
       res %>%
       purrr::map_dfc(
-        ~ `attr<-`(.x, "label",
-                   attr(.x, "label") %>%
-                     stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
-                     qx_embed_field()
+        ~ `attr<-`(
+          .x, "label",
+          attr(.x, "label") %>%
+            stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
+            qx_embed_field()
         )
       )
 
@@ -282,7 +308,7 @@ get_responses_v2 <- function(..., as_factor = TRUE, clean_names = TRUE, browse =
   if(length(dots) > 1) {
     res <- dots %>% purrr::map(moja)
   } else {
-    res <- moja(dots)
+    res <- moja(dots[[1]])
   }
 
   res
