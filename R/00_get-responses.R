@@ -118,6 +118,10 @@ get_responses <- function(...,
         )
       )
 
+
+    if(as_factor)   res <- haven::as_factor(res)
+    if(clean_names) res <- janitor::clean_names(res)
+
     res
   }
 
