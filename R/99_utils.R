@@ -169,7 +169,7 @@ qp_html_to_tex <- function(x) {
     stringr::str_replace_all("<i>(.+)</i>", "\\\\textit{\\1}") %>%
     stringr::str_replace_all("<u>(.+)</u>", "\\\\underline{\\1}") %>%
     stringr::str_replace_all("<b>(.+)</b>", "\\\\textbf{\\1}") %>%
-    stringr::str_replace_all("(<br>|<div>|<p>)+", "\\\\vspace{2 mm}")
+    stringr::str_replace_all("(<br>|<div>|<p>)+", "\n\n\\\\vspace{2 mm}")
 
 
 }

@@ -155,11 +155,11 @@ qp_print_question <- function(q, id, print_internal = TRUE) {
     )
 
   c(
-    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\begin{minipage}{\\textwidth}"),
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\begin{minipage}{\\textwidth}\\begin{raggedright}"),
     print_fun(q),
     "\\vspace{2 mm}",
     ifelse(!stringr::str_detect(nm, "head|desc|img"), "\\end{qbox}", ""),
-    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\end{minipage}")
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\end{raggedright}\\end{minipage}")
   )
 
 }

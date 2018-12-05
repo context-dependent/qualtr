@@ -18,7 +18,8 @@ Imports:
     sodium,
     purrr,
     kableExtra,
-    rmarkdown
+    rmarkdown,
+    janitor
 Suggests: 
     httr,
     snakecase,
