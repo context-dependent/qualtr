@@ -158,7 +158,7 @@ qp_print_question <- function(q, id, print_internal = TRUE) {
     ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\begin{minipage}{\\textwidth}\\begin{raggedright}"),
     print_fun(q),
     "\\vspace{2 mm}",
-    ifelse(!stringr::str_detect(nm, "head|desc|img"), "\\end{qbox}", ""),
+    ifelse(!stringr::str_detect(nm, "head|desc|img"), "\\end{raggedright}\\end{qbox}", ""),
     ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\end{raggedright}\\end{minipage}")
   )
 
@@ -401,11 +401,11 @@ qp_title_text <- function(q, print_internal = TRUE) {
   text <- q$questionText %>% qp_html_to_tex() %>% strip_html()
 
   if(!(qn %>% stringr::str_detect("head|desc|img|^cal"))) {
-    title <- "\\begin{qbox}{\\question}"
+    title <- paste0("\\begin{qbox}{\\question{", stringr::str_replace(qn, "_", "\\\\_"), "}}\\begin{raggedright}")
   } else if(qn %>% stringr::str_detect("head")) {
     return(
       c(
-        paste0("\\subsection{", text, "}")
+        paste0("\\subsection{", q$questionText %>% strip_html(), "}")
       )
     )
   } else if(qn %>% stringr::str_detect("desc")) {
@@ -414,13 +414,13 @@ qp_title_text <- function(q, print_internal = TRUE) {
     )
   } else if(qn %>% stringr::str_detect("^cal")) {
 
-    return(paste0("\\begin{qbox}{\\question}", text, "\\tcal"))
+    return(paste0("\\begin{qbox}{\\question{", stringr::str_replace(qn, "_", "\\_"),  "}}", text, "\\tcal"))
 
   } else {
 
     url <- stringr::str_extract(q$questionText, "(?<=img src\\=\")[^\\s\"]+")
     return(
-      paste0("\\href{", url, "}")
+      "IMAGE" # paste0("\\href{", url, "}")
     )
   }
 
@@ -518,7 +518,6 @@ strip_html <- function(x) {
     ~ xml2::read_html(paste0("<div>",  .x, "</div>"), encoding = "UTF-8") %>%
       rvest::html_text() %>%
       qx_embed_field() %>%
-      stringr::str_replace_all("\\n|\\&nbsp;", " ") %>%
       stringr::str_replace_all("\\`|’|\\&#39;", "\'") %>%
       stringr::str_replace_all("\\&quot;", "\"") %>%
       stringr::str_replace_all("\\$", "") %>%
@@ -547,7 +546,8 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
 
   ## Get choices
 
-  choice <- q$choices %>% purrr::map_chr("choiceText") %>% strip_html()
+  choice <- q$choices %>% purrr::map_chr("choiceText") %>% strip_html() %>%
+    stringr::str_replace_all("\\n+", " ")
 
   ncol <- length(choice)
 

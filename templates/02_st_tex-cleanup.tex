@@ -2,7 +2,6 @@
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
@@ -114,10 +113,10 @@
 
 \newtcolorbox{qbox}[2][]{
   enhanced,
-  sharp corners,
-  colframe = white,
-  colback=light-gray,
+  colframe = black!10!white,
+  colback=white,
   colbacktitle=white,
+  drop shadow=black!50!white,
   coltitle=black,
   top = 10pt,
   boxed title style={colframe=gray},
@@ -148,9 +147,9 @@
 
 \newcounter{qc} \setcounter{qc}{0}
 
-\newcommand{\question}{%
+\newcommand{\question}[1]{%
   \addtocounter{qc}{1}%
-  Q \arabic{qc}%
+  Q \arabic{qc} :: #1%
 }
 
 \newcommand{\tcal}{
