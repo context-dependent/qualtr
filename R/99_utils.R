@@ -62,7 +62,9 @@ register_options <- function(conf = decrypt_conf()) {
 #' @importFrom getPass getPass
 #' @import sodium
 #' @examples
-decrypt_conf <- function(path = ".conf.rds") {
+decrypt_conf <- function() {
+
+  path <- paste0(find.package("qualtr"), ".conf.rds")
 
   pass   <- getPass::getPass()
   cipher <- readRDS(path)
@@ -87,6 +89,9 @@ encrypt_conf <- function(api_token,
                          base_url = "ca1.qualtrics.com",
                          key) {
 
+  path <- paste0(find.package("qualtr"), ".conf.rds")
+
+
   conf <- list(
     api_token = api_token,
     base_url = base_url
@@ -105,7 +110,7 @@ encrypt_conf <- function(api_token,
       )
     )
 
-  saveRDS(cipher, ".conf.rds")
+  saveRDS(cipher, path)
 
 }
 
@@ -169,6 +174,7 @@ qp_html_to_tex <- function(x) {
     stringr::str_replace_all("<i>(.+)</i>", "\\\\textit{\\1}") %>%
     stringr::str_replace_all("<u>(.+)</u>", "\\\\underline{\\1}") %>%
     stringr::str_replace_all("<b>(.+)</b>", "\\\\textbf{\\1}") %>%
+    stringr::str_replace_all("<strong>(.+)</strong>", "\\\\textbf{\\1}") %>%
     stringr::str_replace_all("(<br>|</div>|</p>)+", "\n\n\\\\vspace{2 mm}") %>%
     stringr::str_remove_all("(?<=\\})\\s+")
 
