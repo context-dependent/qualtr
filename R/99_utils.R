@@ -64,7 +64,7 @@ register_options <- function(conf = decrypt_conf()) {
 #' @examples
 decrypt_conf <- function() {
 
-  path <- paste0(find.package("qualtr"), ".conf.rds")
+  path <- paste0(find.package("qualtr"), "/.conf.rds")
 
   pass   <- getPass::getPass()
   cipher <- readRDS(path)
@@ -89,7 +89,7 @@ encrypt_conf <- function(api_token,
                          base_url = "ca1.qualtrics.com",
                          key) {
 
-  path <- paste0(find.package("qualtr"), ".conf.rds")
+  path <- paste0(find.package("qualtr"), "/.conf.rds")
 
 
   conf <- list(

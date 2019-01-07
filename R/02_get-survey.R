@@ -401,7 +401,7 @@ qp_title_text <- function(q, print_internal = TRUE) {
   text <- q$questionText %>% qp_html_to_tex() %>% strip_html()
 
   if(!(qn %>% stringr::str_detect("head|desc|img|^cal"))) {
-    title <- paste0("\\begin{qbox}{\\question{", stringr::str_replace(qn, "_", "\\\\_"), "}}\\begin{raggedright}")
+    title <- paste0("\\begin{qbox}{\\question{", stringr::str_replace_all(qn, "_", "\\\\_"), "}}\\begin{raggedright}")
   } else if(qn %>% stringr::str_detect("head")) {
     return(
       c(
@@ -414,7 +414,7 @@ qp_title_text <- function(q, print_internal = TRUE) {
     )
   } else if(qn %>% stringr::str_detect("^cal")) {
 
-    return(paste0("\\begin{qbox}{\\question{", stringr::str_replace(qn, "_", "\\_"),  "}}", text, "\\tcal"))
+    return(paste0("\\begin{qbox}{\\question{", stringr::str_replace_all(qn, "_", "\\\\_"),  "}}", text, "\\tcal"))
 
   } else {
 
