@@ -33,17 +33,17 @@ read_qsf <- function(path, browse = FALSE) {
       ),
       questionText = q$Payload$QuestionText,
       choices      = q$Payload$Choices %>%
-        map(
+        purrr::map(
           ~ list(
             description = .x$Display,
             choiceText  = .x$Display
           )
         ),
       displayLogic = q$Payload$DisplayLogic[[1]] %>%
-        map("Description") %>%
-        map(qp_html_to_tex) %>%
-        map(strip_html) %>%
-        map(strip_html) %>%
+        purrr::map("Description") %>%
+        purrr::map(qp_html_to_tex) %>%
+        purrr::map(strip_html) %>%
+        purrr::map(strip_html) %>%
         unlist() %>%
         unname()
     )
@@ -83,14 +83,14 @@ read_qsf <- function(path, browse = FALSE) {
       ),
       questionText = col$QuestionText,
       subQuestions = col$Choices %>%
-        map(
+        purrr::map(
           ~ list(
             description = .x$Display,
             choiceText  = .x$Display
           )
         ),
       choices = col$Answers %>%
-        map(
+        purrr::map(
           ~ list(
             description = .x$Display,
             choiceText  = .x$Display

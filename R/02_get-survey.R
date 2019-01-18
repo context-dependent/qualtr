@@ -580,7 +580,7 @@ qp_likert <- function(q, top = TRUE, print = TRUE, browse = FALSE) {
   align = c("l", rep("c", length(choice)))
 
   choice_width <- paste0(
-    21 / length(choice),
+    31 / length(choice),
     "em"
   )
 
