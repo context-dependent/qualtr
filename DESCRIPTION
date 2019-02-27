@@ -9,7 +9,7 @@ Description: More about what it does (maybe more than one line)
 License: CC0
 Encoding: UTF-8
 LazyData: true
-Imports: 
+Imports:
     dplyr,
     magrittr,
     tibble,
@@ -20,11 +20,13 @@ Imports:
     kableExtra,
     rmarkdown,
     janitor
-Suggests: 
+Suggests:
     httr,
     snakecase,
     knitr,
     stringr,
-    rlang
+    rlang,
+    rmarkdown
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr
