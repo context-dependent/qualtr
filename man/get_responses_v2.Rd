@@ -4,8 +4,8 @@
 \alias{get_responses_v2}
 \title{Get responses using current API version}
 \usage{
-get_responses_v2(..., as_factor = TRUE, clean_names = TRUE,
-  browse = FALSE)
+get_responses_v2(..., format = "spss", as_factor = TRUE,
+  clean_names = TRUE, browse = FALSE)
 }
 \arguments{
 \item{browse}{}

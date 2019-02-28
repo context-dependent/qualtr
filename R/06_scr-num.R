@@ -45,6 +45,8 @@ scc <- function() {
 
 }
 
+
+
 likert_scales <- list(
   agree = c(
     "Strongly disagree"                  = 1,
@@ -112,6 +114,18 @@ likert_scales <- list(
 
   )
 )
+
+#' Print the scales used in recoding functinos
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print_scales <- function() {
+
+  print(likert_scales)
+
+}
 
 #' Recode scale with numeric values
 #'

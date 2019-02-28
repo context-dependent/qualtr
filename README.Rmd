@@ -49,7 +49,7 @@ Other packages ask you to store sensitive configuration details in unencrypted y
 
 encrypt_conf(
   api_token = API_TOKEN,
-  base_url = BASE_URL, 
+  # base_url = BASE_URL, 
   key = PASSWORD
 )
 
@@ -154,7 +154,7 @@ skills_catalyst_js_exit_responses %>%
     
     # .rev specifies, among the variables selected in .vars, which will be reverse coded
     # by default, any variable that includes "_r" is reverse coded
-    .rev = vars(matches("_r")),
+    # .rev = vars(matches("_r")),
     scale = "agree"
   ) %>% 
   
@@ -184,4 +184,14 @@ skills_catalyst_js_exit_responses %>%
 ```
 
 
+## Printing surveys
+
+
+```{r}
+skills_catalyst_js_exit_questions <- get_survey("SV_0OJXn0xdyrgkl9P")
+
+
+print_survey(skills_catalyst_js_exit_questions, "prints/2019-02-27_scjs_exit.tex")
+
+```
 

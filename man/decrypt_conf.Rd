@@ -4,7 +4,7 @@
 \alias{decrypt_conf}
 \title{Decrypt token with password}
 \usage{
-decrypt_conf(path = ".conf.rds")
+decrypt_conf()
 }
 \arguments{
 \item{path}{}
