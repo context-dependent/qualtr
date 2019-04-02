@@ -2,13 +2,13 @@
 title: "qualtr"
 author: "Thomas McManus"
 date: "25/02/2019"
-output: html_document
+output: md_document
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, eval=TRUE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
 ```
 
 ## Introduction
@@ -36,16 +36,17 @@ This package was inspired by Jasper Ginn's qualtRics package, and a good deal of
 ### Install the latest version of qualtr
 
 ```{r}
-devtools::install_github("context-dependent/qualtr")
+# devtools::install_github("context-dependent/qualtr")
 
 library(qualtr)
+library(tidyverse)
 ```
 
 ### Encrypt configuration details in package root
 
 Other packages ask you to store sensitive configuration details in unencrypted yaml files. While this offers the obvious convenience of not requiring a password, it is insufficiently secure for our needs. `encrypt_conf` asks for your api_token, datacentre url, and key. It saves these details locally in an encrypted .rds file in the package root folder. Run the following chunk in the console, replacing the capitalized parameters with your account's details
 
-```{r eval = FALSE}
+```{r}
 
 encrypt_conf(
   api_token = API_TOKEN,
@@ -79,7 +80,7 @@ skills_catalyst_surveys <- list_surveys("Skills Catalyst")
 skills_catalyst_surveys
 ```
 
-For the functions in the package that retrieve a survey's questions or responses, you can specify the survey either by id, passing it as a quoted string, or by row in the last result of `list_surveys`. In this case, for example, you could retrieve "`r skills_catalyst_surveys$name[2]`" by either passing the number 2 or "`r skills_catalyst_surveys$id[2]`". Examples of use cases presented later will make the application clear, but generally speaking, it's ok to refer to a survey by row number if you're working with them interactively, but better to use id if you're coding its retrieval into a script. 
+For the functions in the package that retrieve a survey's questions or responses, you can specify the survey either by id, passing it as a quoted string, or by row in the last result of `list_surveys`. In this case, for example, you could retrieve the same survey by either passing the number 2 or "SV_0OJXn0xdyrgkl9P". Examples of use cases presented later will make the application clear, but generally speaking, it's ok to refer to a survey by row number if you're working with them interactively, but better to use id if you're coding its retrieval into a script. 
 
 ## Print survey questions
 

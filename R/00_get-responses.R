@@ -180,6 +180,8 @@ qx_mat_labs <- function(q) {
 #' @examples
 get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names = TRUE, browse = FALSE) {
 
+  if(browse) browser()
+
   dots <- rlang::list2(...)
 
   moja <- function(id) {
