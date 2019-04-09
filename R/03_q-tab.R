@@ -39,20 +39,9 @@ qt_raw <- function(dat,
     ~ attr(.x, "label") %>%
       stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
       qx_embed_field()
-    ) %>%
-      str_split("(?<=[^\\s])-(?=[^\\s])", simplify = TRUE)
+    )
 
-  if(ncol(qs) == 1) {
-
-    stem <- title %||% "Item text"
-    qs <- qs[,1]
-
-  } else {
-
-    stem <- unique(qs[, 1])
-    qs <- qs[, 2]
-
-  }
+  stem <- title %||% "Item text"
 
   names(qs) <- g %>%
     ungroup() %>%
