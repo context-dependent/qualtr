@@ -1,11 +1,12 @@
 Package: qualtr
 Type: Package
 Title: Qualtrics %>% R -> :)
-Version: 0.1.0
+Version: skateboard milkman
 Author: Thomas McManus
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Maintainer: tomas.k.mcmanus@gmail.com
+Description: Use your Qualtrics API credentials to get responses, 
+    generate correctly labelled tables of likert scales, and 
+    print survey questions as pdfs. 
 License: CC0
 Encoding: UTF-8
 LazyData: true

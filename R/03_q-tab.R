@@ -1,11 +1,10 @@
 
-
-#' Labelled table for qualtrics scales
+#' Title
 #'
 #' @param dat
-#' @param ...
-#' @param hh_agg
-#' @param gender
+#' @param .vars
+#' @param .grp
+#' @param title
 #' @param browse
 #'
 #' @return
@@ -31,10 +30,10 @@ qt_raw <- function(dat,
   }
 
   g <- dat %>%
-    select(!!!.vars, -matches("text"))
+    dplyr::select(!!!.vars, -matches("text"))
   qs <- g %>%
-    ungroup() %>%
-    select(!!!.vars) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(!!!.vars) %>%
     purrr::map(
     ~ attr(.x, "label") %>%
       stringr::str_remove("(?<=\\?)\\s+(?=-)") %>%
@@ -44,8 +43,8 @@ qt_raw <- function(dat,
   stem <- title %||% "Item text"
 
   names(qs) <- g %>%
-    ungroup() %>%
-    select(!!!.vars) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(!!!.vars) %>%
     names()
 
 
@@ -55,40 +54,40 @@ qt_raw <- function(dat,
   levs <- levs[[which.max(levs %>% purrr::map(length))]]
 
   g <- g %>%
-    gather(var, val, !!!.vars) %>%
-    filter(!is.na(val)) %>%
-    count(var, val) %>%
-    group_by(!!!grp)
+    tidyr::gather(var, val, !!!.vars) %>%
+    dplyr::filter(!is.na(val)) %>%
+    dplyr::count(var, val) %>%
+    dplyr::group_by(!!!grp)
 
   g <- g %>%
-    mutate(
+    dplyr::mutate(
       p = n / sum(n),
       N = sum(n)
     ) %>%
-    ungroup() %>%
-    mutate(
+    dplyr::ungroup() %>%
+    dplyr::mutate(
       var_lab = recode(var, !!!qs),
-      val = fct_relevel(val, !!!levs, after = Inf)
+      val = forcats::fct_relevel(val, !!!levs, after = Inf)
     ) %>%
-    select(!!!grp, var_lab, everything()) %>%
-    rename(!!sym(stem) := var_lab) %>%
-    arrange(var, val)
+    dplyr::select(!!!grp, var_lab, everything()) %>%
+    dplyr::rename(!!sym(stem) := var_lab) %>%
+    dplyr::arrange(var, val)
 
   g <- g %>%
-    group_by(!!!grp) %>%
-    mutate(
+    dplyr::group_by(!!!grp) %>%
+    dplyr::mutate(
       c = cumsum(p),
       cr = rev(cumsum(rev(p))),
-      pn = str_c(round(p, 2) * 100, "% (", n, ")")
+      pn = stringr::str_c(round(p, 2) * 100, "% (", n, ")")
     )
 
-  g %>% ungroup()
+  g %>% dplyr::ungroup()
 
 }
 
 #' format qt_raw for printing
 #'
-#' @param lt
+#' @param qt
 #'
 #' @return
 #' @export
@@ -96,8 +95,9 @@ qt_raw <- function(dat,
 #' @examples
 qt_print <- function(qt) {
 
-  qt %>% select(-n, -p, -n, -c, -cr) %>%
-    spread(val, pn) %>%
-    mutate_if(is.character, funs(ifelse(is.na(.), " - ", .)))
+  qt %>%
+    dplyr::select(-n, -p, -n, -c, -cr) %>%
+    tidyr::spread(val, pn) %>%
+    dplyr::mutate_if(is.character, funs(ifelse(is.na(.), " - ", .)))
 
 }
