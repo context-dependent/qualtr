@@ -199,13 +199,17 @@ qp_sbs <- function(q, browse = FALSE) {
   t00 <- cols %>%
 
     purrr::map(~qp_sbs_col_print(.x, qsub)) %>%
-    reduce(left_join, by = "Item")
+    purrr::reduce(dplyr::left_join, by = "Item")
 
   align <- c("l", rep("c", ncol(t00) - 1))
 
   col_groups <- cols %>%
     purrr::map_dbl(~ length(.x$choices)) %>%
-    purrr::set_names(cols %>% map_chr("questionText"))
+    purrr::set_names(
+      cols %>%
+        purrr::map_chr("questionText") %>%
+        stringr::str_wrap(70 / length(cols))
+    )
 
   col_groups <- c(" " = 1, col_groups)
 
@@ -224,11 +228,11 @@ qp_sbs <- function(q, browse = FALSE) {
   )
 
   t02 <- t01 %>%
-    kableExtra::column_spec(1, width = "5em") %>%
+    kableExtra::column_spec(1, width = "14em") %>%
     kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
     kableExtra::row_spec(0, background = "white") %>%
     kableExtra::kable_styling(latex_options = "striped") %>%
-    kableExtra::add_header_above(col_groups)
+    kableExtra::add_header_above(col_groups, )
 
   out <- c(
     top,
