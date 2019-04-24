@@ -1,7 +1,7 @@
 Package: qualtr
 Type: Package
 Title: Qualtrics %>% R -> :)
-Version: skateboard milkman
+Version: 0.0.6
 Author: Thomas McManus
 Maintainer: tomas.k.mcmanus@gmail.com
 Description: Use your Qualtrics API credentials to get responses, 
