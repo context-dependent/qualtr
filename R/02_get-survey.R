@@ -232,7 +232,7 @@ qp_sbs <- function(q, browse = FALSE) {
     kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
     kableExtra::row_spec(0, background = "white") %>%
     kableExtra::kable_styling(latex_options = "striped") %>%
-    kableExtra::add_header_above(col_groups, )
+    kableExtra::add_header_above(col_groups)
 
   out <- c(
     top,
