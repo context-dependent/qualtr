@@ -223,12 +223,12 @@ qp_sbs <- function(q, browse = FALSE) {
     )
 
   choice_width <- paste0(
-    31 / (ncol(t00) - 1),
+    29 / (ncol(t00) - 1),
     "em"
   )
 
   t02 <- t01 %>%
-    kableExtra::column_spec(1, width = "14em") %>%
+    kableExtra::column_spec(1, width = "12em") %>%
     kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
     kableExtra::row_spec(0, background = "white") %>%
     kableExtra::kable_styling(latex_options = "striped") %>%

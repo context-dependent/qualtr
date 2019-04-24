@@ -171,10 +171,10 @@ create_payload_v2 <- function(format = "csv", labs = FALSE, ...) {
 qp_html_to_tex <- function(x) {
 
   x %>%
-    stringr::str_replace_all("<i>(.+)</i>", "\\\\textit{\\1}") %>%
+    stringr::str_replace_all("<i>(.+)</i>", "\\\\begin{itenv}\\1\\\\end{itenv}") %>%
     stringr::str_replace_all("<u>(.+)</u>", "\\\\underline{\\1}") %>%
-    stringr::str_replace_all("<b>(.+)</b>", "\\\\textbf{\\1}") %>%
-    stringr::str_replace_all("<strong>(.+)</strong>", "\\\\textbf{\\1}") %>%
+    stringr::str_replace_all("<b>(.+)</b>", "\\\\begin{boldenv}\\1\\\\end{boldenv}") %>%
+    stringr::str_replace_all("<strong>(.+)</strong>", "\\\\begin{boldenv}\\1\\\\end{boldenv}") %>%
     stringr::str_replace_all("(<br>|</div>|</p>)+", "\n\n\\\\vspace{2 mm}") %>%
     stringr::str_remove_all("(?<=\\})\\s+")
 
