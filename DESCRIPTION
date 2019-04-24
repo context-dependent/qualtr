@@ -3,7 +3,6 @@ Type: Package
 Title: Qualtrics %>% R -> :)
 Version: 0.0.6
 Author: Thomas McManus
-Maintainer: Thomas McManus
 Description: Use your Qualtrics API credentials to get responses, 
     generate correctly labelled tables of likert scales, and 
     print survey questions as pdfs. 
