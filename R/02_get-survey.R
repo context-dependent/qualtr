@@ -199,9 +199,15 @@ qp_sbs <- function(q, browse = FALSE) {
   t00 <- cols %>%
 
     purrr::map(~qp_sbs_col_print(.x, qsub)) %>%
-    reduce(left_join)
+    reduce(left_join, by = "Item")
 
   align <- c("l", rep("c", ncol(t00) - 1))
+
+  col_groups <- cols %>%
+    purrr::map_dbl(~ length(.x$choices)) %>%
+    purrr::set_names(cols %>% map_chr("questionText"))
+
+  col_groups <- c(" " = 1, col_groups)
 
   t01 <- t00 %>%
     knitr::kable(
@@ -221,12 +227,15 @@ qp_sbs <- function(q, browse = FALSE) {
     kableExtra::column_spec(1, width = "5em") %>%
     kableExtra::column_spec(2:ncol(t00), width = choice_width) %>%
     kableExtra::row_spec(0, background = "white") %>%
-    kableExtra::kable_styling(latex_options = "striped")
+    kableExtra::kable_styling(latex_options = "striped") %>%
+    kableExtra::add_header_above(col_groups)
 
   out <- c(
     top,
     t02
-  )
+  ) %>%
+
+  stringr::str_remove_all("\\.x|\\.y")
 
   ## Return formatted question
 
