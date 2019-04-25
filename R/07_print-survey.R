@@ -705,7 +705,8 @@ qp_cb <- function(q, center = TRUE, browse = FALSE) {
     ~ "\\ding{109}",
 
     s %in% c(
-      "MAVR"
+      "MAVR",
+      "MACOL"
     )
     ~ "\\ding{113}",
 
