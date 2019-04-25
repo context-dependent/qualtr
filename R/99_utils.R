@@ -143,7 +143,6 @@ create_payload <- function(id, format = "csv", labs = FALSE, ...) {
 #' @param format
 #' @param labs
 #' @param ...
-#'
 #' @return
 #' @export
 #'

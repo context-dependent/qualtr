@@ -111,6 +111,13 @@ likert_scales <- list(
     "Somewhat interested"                = 3,
     "Very interested"                    = 4,
     "Extremely interested"               = 5
+  ),
+  like_me = c(
+    "Not like me at all"                 = 1,
+    "Not much like me"                   = 2,
+    "Somewhat like me"                   = 3,
+    "Mostly like me"                     = 4,
+    "Very much like me"                  = 5
 
   )
 )
