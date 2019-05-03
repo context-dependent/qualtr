@@ -640,9 +640,8 @@ qp_head <- function(srv) {
 
   title = srv$result$name
 
-
   tmp <- template %>%
-    stringr::str_replace("SURVEYTITLE", title) %>%
+    stringr::str_replace("SURVEYTITLE", stringr::str_replace_all(title, "_", "\\\\_")) %>%
     stringr::str_replace("TODAY", as.character(Sys.Date()))
 
   tmp
