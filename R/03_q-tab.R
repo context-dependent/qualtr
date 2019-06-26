@@ -56,7 +56,16 @@ qt_raw <- function(dat,
   g <- g %>%
     tidyr::gather(var, val, !!!.vars) %>%
     dplyr::filter(!is.na(val)) %>%
-    dplyr::count(var, val) %>%
+    dplyr::mutate(val = as.factor(val))
+
+  missing_levels <- levs[!(levs %in% levels(g$val))]
+
+  g <- g %>%
+    mutate(
+      val = forcats::fct_expand(val, missing_levels) %>%
+        forcats::fct_relevel(levs)
+    ) %>%
+    dplyr::count(var, val, .drop = FALSE) %>%
     dplyr::group_by(!!!grp)
 
   g <- g %>%
