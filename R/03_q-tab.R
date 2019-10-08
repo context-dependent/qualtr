@@ -6,6 +6,7 @@
 #' @param .grp
 #' @param title
 #' @param browse
+#' @param explicit_na
 #'
 #' @return
 #' @export
@@ -15,7 +16,8 @@ qt_raw <- function(dat,
                    .vars,
                    .grp = groups(dat),
                    title = NULL,
-                   browse = FALSE) {
+                   browse = FALSE,
+                   explicit_na = NULL) {
 
   if(browse) browser()
 
@@ -54,11 +56,22 @@ qt_raw <- function(dat,
   levs <- levs[[which.max(levs %>% purrr::map(length))]]
 
   g <- g %>%
-    tidyr::gather(var, val, !!!.vars) %>%
-    dplyr::filter(!is.na(val)) %>%
-    dplyr::mutate(val = as.factor(val))
+    tidyr::gather(var, val, !!!.vars)
+
+
+  if(!is.null(explicit_na)) {
+    g <- g %>% dplyr::mutate(val = as.factor(val) %>% forcats::fct_explicit_na(explicit_na))
+  } else {
+    g <- g %>% dplyr::filter(!is.na(val)) %>%
+      dplyr::mutate(val = as.factor(val))
+  }
 
   missing_levels <- levs[!(levs %in% levels(g$val))]
+
+  if(!is.null(explicit_na)) {
+    levs <- c(levs, explicit_na)
+    missing_levels <- c(missing_levels, explicit_na)
+  }
 
   g <- g %>%
     mutate(

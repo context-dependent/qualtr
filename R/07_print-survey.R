@@ -123,7 +123,8 @@ qp_print_question <- function(q, id, print_internal = TRUE) {
       "Timing" = function(q) {qp_title_text(q, print_internal = print_internal)},
       "SBS" = qp_sbs,
       "Slider" = qp_slider,
-      "HeatMap" = qp_heat_map
+      "HeatMap" = qp_heat_map,
+      "DD" = qp_drill_down
 
     )
 
@@ -135,6 +136,19 @@ qp_print_question <- function(q, id, print_internal = TRUE) {
     ifelse(!stringr::str_detect(nm, "head|desc|img"), "", "\\end{raggedright}\\end{minipage}")
   )
 
+}
+
+qp_drill_down <- function(q) {
+
+  top <- qp_title_text(q)
+
+  qp <- "[DRILL DOWN PLACEHOLDER]"
+
+  res <- c(
+    "\n\n\n",
+    top,
+    qp
+  )
 }
 
 qp_slider <- function(q) {
