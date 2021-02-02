@@ -80,6 +80,9 @@ skills_catalyst_surveys <- list_surveys("Skills Catalyst")
 skills_catalyst_surveys
 ```
 
+Sometimes, for reasons unknown, `list_surveys` does not capture some surveys. 
+In these cases, you can navigate to the project in the Qualtrics interface and copy the survey ID from the url.
+
 For the functions in the package that retrieve a survey's questions or responses, you can specify the survey either by id, passing it as a quoted string, or by row in the last result of `list_surveys`. In this case, for example, you could retrieve the same survey by either passing the number 2 or "SV_0OJXn0xdyrgkl9P". Examples of use cases presented later will make the application clear, but generally speaking, it's ok to refer to a survey by row number if you're working with them interactively, but better to use id if you're coding its retrieval into a script. 
 
 ## Print survey questions
@@ -87,9 +90,8 @@ For the functions in the package that retrieve a survey's questions or responses
 ## Download survey responses 
 
 ```{r}
-skills_catalyst_js_exit_responses <- get_responses("SV_0OJXn0xdyrgkl9P")
+skills_catalyst_js_exit_responses <- get_responses_v2("SV_0OJXn0xdyrgkl9P")
 
-head(skills_catalyst_js_exit_responses)
 ```
 
 

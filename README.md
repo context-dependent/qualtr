@@ -1,5 +1,4 @@
-Introduction
-------------
+## Introduction
 
 Tools for working with the Qualtrics API that prioritize portability,
 convenience, and security.
@@ -22,17 +21,14 @@ convenience, and security.
 This package was inspired by Jasper Ginn’s qualtRics package, and a good
 deal of the functionality overlaps.
 
-Getting started
----------------
+## Getting started
 
 ### Install the latest version of qualtr
 
-```r
     # devtools::install_github("context-dependent/qualtr")
 
     library(qualtr)
     library(tidyverse)
-```
 
 ### Encrypt configuration details in package root
 
@@ -44,13 +40,11 @@ saves these details locally in an encrypted .rds file in the package
 root folder. Run the following chunk in the console, replacing the
 capitalized parameters with your account’s details
 
-```r
     encrypt_conf(
       api_token = API_TOKEN,
       # base_url = BASE_URL, 
       key = PASSWORD
     )
-```
 
 ### Confirm your saved configuration details by decrypting them
 
@@ -58,29 +52,26 @@ capitalized parameters with your account’s details
 stored locally in .conf.rds in the package root. You can call it at the
 top level to confirm that the credentials are successfully stored.
 
-```r
     decrypt_conf()
-```
 
-Finding surveys
----------------
+## Finding surveys
 
 `list_surveys` returns a list of all surveys associated with your API
 key.
 
-```r
     list_surveys()
-```
 
 By default, more recently edited surveys are displayed first, but if you
 pass a search term to `list_surveys`, they will be ordered by their
 proximity to that.
 
-```r
     skills_catalyst_surveys <- list_surveys("Skills Catalyst")
 
     skills_catalyst_surveys
-```
+
+Sometimes, for reasons unknown, `list_surveys` does not capture some
+surveys. In these cases, you can navigate to the project in the
+Qualtrics interface and copy the survey ID from the url.
 
 For the functions in the package that retrieve a survey’s questions or
 responses, you can specify the survey either by id, passing it as a
@@ -92,22 +83,16 @@ to refer to a survey by row number if you’re working with them
 interactively, but better to use id if you’re coding its retrieval into
 a script.
 
-Download survey responses
--------------------------
+## Print survey questions
 
-```r
-    skills_catalyst_js_exit_responses <- get_responses("SV_0OJXn0xdyrgkl9P")
+## Download survey responses
 
-    head(skills_catalyst_js_exit_responses)
-```
+    skills_catalyst_js_exit_responses <- get_responses_v2("SV_0OJXn0xdyrgkl9P")
 
-
-Tabulate scale data
--------------------
+## Tabulate scale data
 
 ### Generate raw table for further analysis
 
-```r
     satisfaction_table_raw <- 
       
       skills_catalyst_js_exit_responses %>% 
@@ -118,12 +103,9 @@ Tabulate scale data
 
 
     satisfaction_table_raw
-```
-
 
 ### Format raw table for printing
 
-```r
     satisfaction_table_print <- 
       
       satisfaction_table_raw %>% 
@@ -131,11 +113,9 @@ Tabulate scale data
       qt_print()
 
     satisfaction_table_print
-```
 
 ### Tabulate by group
 
-```r
     satisfaction_by_employment_table <- 
       
       skills_catalyst_js_exit_responses %>% 
@@ -146,14 +126,11 @@ Tabulate scale data
         qt_print()
 
     satisfaction_by_employment_table
-```
 
-Treating likert responses as numeric
-------------------------------------
+## Treating likert responses as numeric
 
 ### Recode values
 
-```r
     skills_catalyst_js_exit_responses %>% 
       
       scr_num(
@@ -171,8 +148,6 @@ Treating likert responses as numeric
       select(
         matches("sat_1")
       )
-```
-
 
 ### Scoring scales
 
@@ -180,7 +155,6 @@ Treating likert responses as numeric
 score per item. The `.vars`, `.rev`, and scale arguments work the same
 way.
 
-```r
     skills_catalyst_js_exit_responses %>% 
       
       score_scale(
@@ -191,14 +165,10 @@ way.
         scale = "agree"
         
       )
-```
 
-Printing surveys
-----------------
+## Printing surveys
 
-```r
     skills_catalyst_js_exit_questions <- get_survey("SV_0OJXn0xdyrgkl9P")
 
 
     print_survey(skills_catalyst_js_exit_questions, "prints/2019-02-27_scjs_exit.tex")
-```
