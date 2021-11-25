@@ -86,7 +86,7 @@ decrypt_conf <- function() {
 #'
 #' @examples
 encrypt_conf <- function(api_token,
-                         base_url = "ca1.qualtrics.com",
+                         base_url = "blueprintade.ca1.qualtrics.com",
                          key) {
 
   path <- paste0(find.package("qualtr"), "/.conf.rds")
