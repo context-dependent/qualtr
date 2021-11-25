@@ -19,7 +19,8 @@ Imports:
     purrr,
     kableExtra,
     rmarkdown,
-    janitor
+    janitor,
+    markdown (>= 1.1)
 Suggests:
     httr,
     snakecase,

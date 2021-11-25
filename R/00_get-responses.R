@@ -217,17 +217,10 @@ get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names
       body = pl) %>%
       httr::content()
 
-
     check_url <- paste0(root_url, "/", post_content$result$progressId)
 
-    check_request <- httr::VERB(
-      "GET",
-      url = check_url,
-      httr::add_headers(headers())
-    ) %>%
-      httr::content()
-
     if(browse) browser()
+
 
     progress <- 0
     cat("progress: \n")
@@ -237,6 +230,7 @@ get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names
 
       check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
         httr::content()
+      print(check_request)
       p <- floor(check_request$result$percentComplete)
 
       if(p > progress) {
