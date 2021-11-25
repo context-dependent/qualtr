@@ -230,7 +230,6 @@ get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names
 
       check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
         httr::content()
-      print(check_request)
       p <- floor(check_request$result$percentComplete)
 
       if(p > progress) {
