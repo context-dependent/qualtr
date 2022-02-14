@@ -223,14 +223,20 @@ get_responses_v2 <- function(..., format = "spss", as_factor = TRUE, clean_names
 
 
     progress <- 0
-    cat("progress: \n")
+    cat(glue::glue("progress for {id}: \n"))
     while(progress < 100) {
 
       Sys.sleep(1)
 
       check_request <- httr::VERB("GET", url = check_url, httr::add_headers(headers())) %>%
         httr::content()
-      p <- floor(check_request$result$percentComplete)
+      
+      if(is.numeric(check_request$result$percentComplete)) {
+        p <- floor(check_request$result$percentComplete)
+      } else {
+        message("check_request broken")
+        p <- 100
+      }
 
       if(p > progress) {
 
