@@ -136,6 +136,7 @@ list_user_groups <- function() {
 #'    )
 #' but that only specifies values to change from 
 #' the defaults
+#' @export
 share_surveys <- function(d, custom_permissions = list()) {
     res <- d |>
         mutate(
