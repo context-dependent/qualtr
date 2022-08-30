@@ -4,13 +4,21 @@
 \alias{get_responses_v2}
 \title{Get responses using current API version}
 \usage{
-get_responses_v2(..., format = "spss", as_factor = TRUE,
-  clean_names = TRUE, browse = FALSE)
+get_responses_v2(
+  ...,
+  format = "spss",
+  as_factor = TRUE,
+  clean_names = TRUE,
+  browse = FALSE
+)
 }
 \arguments{
 \item{browse}{}
 
 \item{id}{Survey id as string or index from most recent list_surveys table}
+}
+\value{
+
 }
 \description{
 Get responses using current API version

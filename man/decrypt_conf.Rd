@@ -9,6 +9,9 @@ decrypt_conf()
 \arguments{
 \item{path}{}
 }
+\value{
+
+}
 \description{
 Decrypt token with password
 }

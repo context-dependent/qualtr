@@ -9,6 +9,9 @@ scr_num(dat, .vars, .rev = NULL, scale = "agree", fct = FALSE)
 \arguments{
 \item{fct}{}
 }
+\value{
+
+}
 \description{
 Recode scale with numeric values
 }

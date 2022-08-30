@@ -7,7 +7,10 @@
 qt_print(qt)
 }
 \arguments{
-\item{lt}{}
+\item{qt}{}
+}
+\value{
+
 }
 \description{
 format qt_raw for printing

@@ -6,6 +6,9 @@
 \usage{
 list_surveys(search = "")
 }
+\value{
+
+}
 \description{
 List surveys on the license, arrange by search term
 }

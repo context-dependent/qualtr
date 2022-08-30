@@ -9,6 +9,9 @@ q_bar(dat, x, title_wrap = 40, col_wrap = 12)
 \arguments{
 \item{col_wrap}{}
 }
+\value{
+
+}
 \description{
 Labelled bar chart uses qualtrics data
 }

@@ -6,8 +6,8 @@
 \usage{
 create_payload_v2(format = "csv", labs = FALSE, ...)
 }
-\arguments{
-\item{...}{}
+\value{
+
 }
 \description{
 Create payload for updated api: no id in the payload

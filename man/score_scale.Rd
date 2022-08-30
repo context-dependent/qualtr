@@ -4,11 +4,13 @@
 \alias{score_scale}
 \title{Generate a scale score for a set of columns}
 \usage{
-score_scale(srv, var_name, .vars, .rev = vars(matches("_r")),
-  scale = "agree")
+score_scale(srv, var_name, .vars, .rev = vars(matches("_r")), scale = "agree")
 }
 \arguments{
 \item{scale}{}
+}
+\value{
+
 }
 \description{
 Generate a scale score for a set of columns

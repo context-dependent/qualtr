@@ -6,6 +6,9 @@
 \usage{
 headers()
 }
+\value{
+
+}
 \description{
 Return API request headers
 }

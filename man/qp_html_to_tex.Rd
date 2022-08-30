@@ -9,6 +9,9 @@ qp_html_to_tex(x)
 \arguments{
 \item{x}{}
 }
+\value{
+
+}
 \description{
 Simple scan for html formatting tags -> latex
 }

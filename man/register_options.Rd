@@ -6,6 +6,9 @@
 \usage{
 register_options(conf = decrypt_conf())
 }
+\value{
+
+}
 \description{
 register API KEY and root URL in env variables
 }

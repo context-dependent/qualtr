@@ -9,6 +9,9 @@ get_survey(survey_id)
 \arguments{
 \item{survey_id}{}
 }
+\value{
+
+}
 \description{
 Get survey document as list
 }

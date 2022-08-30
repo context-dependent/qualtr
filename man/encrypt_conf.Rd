@@ -4,10 +4,13 @@
 \alias{encrypt_conf}
 \title{Encrypt qualtrics configuration details in project root}
 \usage{
-encrypt_conf(api_token, base_url = "ca1.qualtrics.com", key)
+encrypt_conf(api_token, base_url = "blueprintade.ca1.qualtrics.com", key)
 }
 \arguments{
 \item{key}{}
+}
+\value{
+
 }
 \description{
 Encrypt qualtrics configuration details in project root

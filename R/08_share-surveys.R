@@ -2,6 +2,47 @@
 #' 
 #' @param survey_id is character: the Qx SurveyId to share
 #' @param recipient_id is character: the Qx UserId or GroupId to share it with
+#' #' @param custom_permissions 
+#' is a list that conforms to the following
+#' scheme: 
+#'     list(
+#'        surveyDefinitionManipulation = list(
+#'            copySurveyQuestions   = TRUE,
+#'            editSurveyFlow        = TRUE,
+#'            useBlocks             = TRUE,
+#'            useSkipLogic          = TRUE,
+#'            useConjoint           = TRUE,
+#'            useTriggers           = TRUE,
+#'            useQuotas             = TRUE,
+#'            setSurveyOptions      = TRUE,
+#'            editQuestions         = TRUE,
+#'            deleteSurveyQuestions = TRUE,
+#'            useTableOfContents    = TRUE,
+#'            useAdvancedQuotas     = TRUE
+#'        ),
+#'        surveyManagement = list(
+#'            editSurveys           = TRUE,
+#'            activateSurveys       = TRUE,
+#'            deactivateSurveys     = TRUE,
+#'            copySurveys           = TRUE,
+#'            distributeSurveys     = TRUE,
+#'            deleteSurveys         = TRUE,
+#'            translateSurveys      = TRUE
+#'        ),
+#'        response = list(
+#'            editSurveyResponses   = TRUE,
+#'            createResponseSets    = TRUE,
+#'            viewResponseId        = TRUE,
+#'            useCrossTabs          = TRUE,
+#'            useScreenouts         = TRUE
+#'        ),
+#'        result = list(
+#'            downloadSurveyResults = TRUE,
+#'            viewSurveyResults     = TRUE,
+#'            filterSurveyResults   = TRUE,
+#'            viewPersonalData      = TRUE
+#'        )
+#'    )
 #' 
 #' @export 
 share_survey <- function(survey_id, recipient_id, custom_permissions = list()) {

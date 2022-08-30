@@ -9,6 +9,9 @@ read_qsf(path, browse = FALSE)
 \arguments{
 \item{browse}{}
 }
+\value{
+
+}
 \description{
 Import qsf file for printing
 }

@@ -6,6 +6,9 @@
 \usage{
 print_scales()
 }
+\value{
+
+}
 \description{
 Print the scales used in recoding functinos
 }

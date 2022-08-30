@@ -2,13 +2,23 @@
 % Please edit documentation in R/03_q-tab.R
 \name{qt_raw}
 \alias{qt_raw}
-\title{Labelled table for qualtrics scales}
+\title{Title}
 \usage{
-qt_raw(dat, .vars, .grp = groups(dat), title = NULL, browse = FALSE)
+qt_raw(
+  dat,
+  .vars,
+  .grp = groups(dat),
+  title = NULL,
+  browse = FALSE,
+  explicit_na = NULL
+)
 }
 \arguments{
-\item{browse}{}
+\item{explicit_na}{}
+}
+\value{
+
 }
 \description{
-Labelled table for qualtrics scales
+Title
 }
